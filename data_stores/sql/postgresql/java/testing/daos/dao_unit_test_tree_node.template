@@ -1,0 +1,178 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+<%tabSettings tabLength = "4" outputType = "tabs" %>
+
+
+<%text%>/*
+ * This file was generated.
+ */
+
+package <%root.global.projectName%>.testing.unit.daos;
+
+
+
+import java.util.*;
+
+import systemtest.testframework.*;
+import archtemputils.database.*;
+
+<%customCode key="<%root.global.projectName%>DAOUnitTestsImports" openingCommentCharacters="//"%>
+
+
+
+
+public class <%root.global.projectName%>DAOUnitTestsNode extends TestTreeNode {
+
+	private class TestOrdering {
+		public String			m_tableName;
+		public TestCase			m_testCase;
+		public Vector<String>	m_parentTableNames	= new Vector<String>();
+
+		public TestOrdering(String p_tableName, TestCase p_testCase) {
+			m_tableName = p_tableName;
+			m_testCase	= p_testCase;
+		}
+	}
+
+	// Data members
+	private PostgreSQLDatabaseUtils		m_databaseUtils		= null;
+
+
+	//*********************************
+	/**
+	* This default constructor is for the true root node.  All child nodes will receive a parent reference throught the constructor below.
+	*/
+	public <%root.global.projectName%>DAOUnitTestsNode() {
+		super(null, "DAO Function Tests");
+
+		Init();
+	}
+
+
+	//*********************************
+	public <%root.global.projectName%>DAOUnitTestsNode(TestTreeNode p_parent) {
+		super(p_parent, "DAO Function Tests");
+
+		Init();
+	}
+
+
+	//*********************************
+	private void Init() {
+		m_databaseUtils = new PostgreSQLDatabaseUtils("<%root.global.projectName%>_server", "<%root.global.projectName%>");
+
+		// This class runs tests of DAOs that are modifying a real test database, but to do that, we need to handle the fact that some tables have foreign key references.
+		// For this first pass at handling that, I decided that I could write the test cases to leave a record in the database after their other tests are complete.
+		// If I do that, then all I need to do is order the test case such that the parent table test cases are always before their respective child table test cases.
+		// Thats why this node has a completely different-looking Init() that normal it needs the code below to do that test case ordering for us.
+
+		TreeMap<String, TestOrdering>	t_testOrderingEntries	= new TreeMap<>();	// This collection is holds the original set of TestOrdering objects in an easily searchable collection.
+		TestOrdering					t_nextTestOrdering;
+<%endtext%>
+
+<%foreach node=table%>
+
+	<%text%>
+		t_nextTestOrdering = new TestOrdering("<%sqlName%>", new <%className%>DAOTest(this));
+		t_testOrderingEntries.put("<%sqlName%>", t_nextTestOrdering);
+<%endtext%>
+
+	<%foreach node=column%>
+
+		<%foreach node=foreignKey%>
+
+			<<< This if() says that we don't want to include foreign keys that reference the same table that owns this column.  We only want to handle foreign keys here that point to OTHER tables. >>>
+			<%if <%not  <%parentTableName%> = <%^^sqlName%> %> = true %>
+
+				<%text%>		t_nextTestOrdering.m_parentTableNames.add("<%parentTableName%>");
+<%endtext%>
+
+			<%endif%>
+
+		<%endfor%>
+
+	<%endfor%>
+
+<%endfor%>
+
+
+<%text%>
+
+		// Now that we have a descriptive entry for every table, we need the code below to loop through them and sort the test cases such that all parent
+		// table test cases appear before any child table test cases.  Since you may have dependency chains longer than only one child table, this code has to loop
+		// as many times as it takes to clear out all of the entries in the map.  You may also get more passes through the loop because the tables are not in an
+		// optimal order (i.e. you can't remove a table from the map until all of its parent tables have been removed, so entry order can be such that the parent
+		// isn't removed in the current pass until after you've already visited the child entries that reference it, thereby requiring an extra pass to get to removing the child.)
+
+		Iterator<TestOrdering>	t_entryIterator;
+		Vector<String>			t_entriesToRemove	= new Vector<String>();	// Since we will be iterating over t_testOrderingEntries as we look for "parent" tables from the foreign key references, we can't delete entries from the TreeMap<> as we go, so we will add the target table name here so that we can rip through and delete the target entries from the map outside of the loop.
+		while (!t_testOrderingEntries.isEmpty()) {
+			t_entryIterator = t_testOrderingEntries.values().iterator();
+NextTable:	while (t_entryIterator.hasNext()) {
+				t_nextTestOrdering = t_entryIterator.next();
+
+				for (String t_nextParentTableName: t_nextTestOrdering.m_parentTableNames) {
+					if (t_testOrderingEntries.containsKey(t_nextParentTableName))
+						continue NextTable;	// If this table has a parent reference that is still in the map, then we can't add it to the final test case execution order yet or delete it from the map, so we need to move on to the next table.
+				}
+
+				m_children.add(t_nextTestOrdering.m_testCase);			// Add the test case to the final list of test cases owned by the node.
+				t_entriesToRemove.add(t_nextTestOrdering.m_tableName);	// Add this table to the vector of table names to be removed from the map after this loop.
+			}
+
+			for (String t_nextTargetTableName: t_entriesToRemove)
+				t_testOrderingEntries.remove(t_nextTargetTableName);
+
+			t_entriesToRemove.clear();	// Now that we done the deletions for this pass, we need to clear this collection to get ready for the next pass.
+		}
+<%endtext%>
+
+<%text%>	}
+
+
+	//*********************************
+	@Override
+	protected boolean Setup() {
+		try {
+			if (!m_databaseUtils.CreateDatabase()) {
+				if (m_log != null)
+					m_log.AddError("<%root.global.projectName%>DAOUnitTestsNode.Setup() failed to create database [<%root.global.projectName%>].");
+
+				return false;
+			}
+		}
+		catch (Throwable t_error) {
+			if (m_log != null)
+				m_log.AddException("<%root.global.projectName%>DAOUnitTestsNode.Setup() failed with error: " + t_error.getMessage());
+
+			return false;
+		}
+
+		return true;
+	}
+
+
+	//*********************************
+	@Override
+	protected boolean Cleanup() {
+		try {
+			if (!m_databaseUtils.DestroyDatabase()) {
+				if (m_log != null)
+					m_log.AddError("<%root.global.projectName%>DAOUnitTestsNode.Cleanup() failed to destroy the database [<%root.global.projectName%>].");
+
+				return false;
+			}
+		}
+		catch (Throwable t_error) {
+			if (m_log != null)
+				m_log.AddException("<%root.global.projectName%>DAOUnitTestsNode.Cleanup() failed with error: " + t_error.getMessage());
+
+			return false;
+		}
+
+		return true;
+	}
+
+}
+<%endtext%>
+

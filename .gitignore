@@ -1,0 +1,9 @@
+*.class
+*.ja
+*.kate-swp
+
+.settings/
+.metadata/
+.recommenders/
+bin/
+lib/

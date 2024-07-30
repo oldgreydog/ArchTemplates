@@ -1,0 +1,124 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+<%text%><?xml version="1.0" encoding="UTF-8"?>
+
+
+<!--
+	Here is a sample table that includes examples of both the foreignKey node and the index node.
+
+	<Node name="table">
+		<Value name="className">Task</Value>
+		<Value name="sqlName">TASK</Value>
+
+		<Node name="column">
+			<Value name="name">TaskId</Value>
+			<Value name="sqlName">TASK_ID</Value>
+			<Value name="type">bigint</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="name">CreatedTs</Value>
+			<Value name="sqlName">CREATED_TS</Value>
+			<Value name="type">timestamp</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="name">LastModifiedTs</Value>
+			<Value name="sqlName">LAST_MODIFIED_TS</Value>
+			<Value name="type">timestamp</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+
+		<Node name="column">
+			<Value name="name">TaskTypeId</Value>
+			<Value name="sqlName">TASK_TYPE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="name">StatusId</Value>
+			<Value name="sqlName">STATUS_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+
+		<Node name="column">
+			<Value name="name">ParentTaskId</Value>
+			<Value name="sqlName">PARENT_TASK_ID</Value>
+			<Value name="type">bigint</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">TASK</Value>
+				<Value name="parentColumnName">TASK_ID</Value>
+			</Node>
+		</Node>
+
+		<Node name="column">
+			<Value name="name">Parameters</Value>
+			<Value name="sqlName">PARAMETERS</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">16384</Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="name">ScheduledExecutionTime</Value>
+			<Value name="sqlName">SCHEDULED_EXECUTION_TIME</Value>
+			<Value name="type">timestamp</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+
+		<Node name="column">
+			<Value name="name">RecurringTaskId</Value>
+			<Value name="sqlName">RECURRING_TASK_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">RECURRING_TASK</Value>
+				<Value name="parentColumnName">RECURRING_TASK_ID</Value>
+			</Node>
+		</Node>
+
+
+		<Node name="index">
+			<Value name="indexName">TASK_STATUS_INDEX</Value>
+			<Value name="column">STATUS_ID</Value>
+			<Value name="column">SCHEDULED_EXECUTION_TIME</Value>
+		</Node>
+	</Node>
+-->
+
+
+<Node name="root">
+	<Node name="global">
+		<Value name="projectName"				><%^^projectName%></Value>
+		<Value name="rootTemplatesPath"			><%root.global.rootTemplatesPath%></Value>
+		<Value name="rootProjectTemplatePath"	><%rootProjectTemplatePath%></Value>
+		<Value name="rootOutputPath"			><%root.global.rootOutputPath%></Value>
+		<Value name="databaseName"				><%^^projectName%></Value>
+		<Value name="packageName"				><%^^projectName%></Value>
+		<Value name="uriPath"					><%^^projectName%></Value>
+		<Value name="databaseID" description="clientSpecified | [some config ID]"><%^^projectName%></Value>
+	</Node>
+
+	<%customCode key = "SchemaDefinitions" openingCommentCharacters="<!--" optionalClosingCommentCharacters="-->" %>
+
+</Node>
+<%endtext%>
+

@@ -1,0 +1,11 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+
+<%first optionalCounterName = "build" %>
+
+	<%file		template=<%rootProjectTemplatePath%>/../../project/sql_schema.template		filename=sql_schema.xml					destDir="<%root.global.rootOutputPath%>/<%^^projectName%>" %>
+
+	<%copyfile	sourceFilePath=<%root.global.rootTemplatesPath%>/project/generate_all		targetDirectory="<%root.global.rootOutputPath%>/<%^^projectName%>"	optionalMakeFileExecutable=true %>
+	<%copyfile	sourceFilePath=<%root.global.rootTemplatesPath%>/project/build_all			targetDirectory="<%root.global.rootOutputPath%>/<%^^projectName%>"	optionalMakeFileExecutable=true %>
+
+<%endfirst%>

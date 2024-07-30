@@ -1,0 +1,36 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+<%text%>/*
+ * This file was generated.
+ */
+
+package <%root.global.packageName%>.marshalling;
+
+
+
+import coreutil.logging.*;
+import <%root.global.packageName%>.marshalling.inorder.*;
+
+
+
+public class <%root.global.databaseName%>MarshallingFactory {
+
+	static public final String		MARCHALLING_TYPE_IN_ORDER_JSON	= "inOrderJson";
+<%endtext%>
+
+<%foreach node=table%>
+<%text%>
+
+	//===========================================
+	static public <%className%>Marshalling		Get<%className%>Marshalling(String p_marshallingType) {
+		if (p_marshallingType.equalsIgnoreCase(MARCHALLING_TYPE_IN_ORDER_JSON))
+			return new InOrder<%className%>Marshalling();
+
+		Logger.LogError("<%root.global.databaseName%>MarshallingFactory.<%className%>Marshalling() does not handle the marshalling type [" + p_marshallingType + "].");
+		return null;
+	}
+<%endtext%>
+<%endfor%>
+
+<%text%>
+}
+<%endtext%>

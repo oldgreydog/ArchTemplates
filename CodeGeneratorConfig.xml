@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Config>
+	<Node name="logging">
+		<Value name="timezone" description="local,zulu" >local</Value>
+
+		<Node name="logTargets">
+			<Value name="target">coreutil.logging.ConsoleLogger</Value>
+			<Value name="target">coreutil.logging.FileLogger</Value>
+		</Node>
+		<Node name="consoleLogger">
+			<Value name="maxLoggingLevel">30</Value>
+		</Node>
+		<Node name="fileLogger">
+			<Value name="logDirectory">/home/kaylor/temp/logs</Value>
+			<Value name="appFileNamePrefix">ArchDevCodeGen</Value>
+			<Value name="maxLoggingLevel">30</Value>
+		</Node>
+	</Node>
+</Config>

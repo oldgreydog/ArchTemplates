@@ -1,0 +1,749 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+<%tabSettings tabLength = "4" outputType = "tabs" %>
+
+
+<<< I moved the variable definitions to a separate file since they are almost all shared by all of the DAO templates. >>>
+<%include template=<%root.global.rootProjectTemplatePath%>/data_access_objects/dao_variables.template %>
+
+
+<%text%>/*
+ * This file was generated.
+ */
+
+package <%root.global.packageName%>.data_access_objects.net;
+
+
+
+import java.sql.*;
+import java.time.*;
+import java.util.*;
+
+import <%root.global.packageName%>.data_access_objects.*;
+import <%root.global.packageName%>.data_access_objects.net.server.*;
+import <%root.global.packageName%>.marshalling.inorder.*;
+import <%root.global.packageName%>.value_objects.*;
+import coreutil.logging.*;
+import coreutil.misc.*;
+import archtemputils.database.DBConnectionManager.*;
+import archtemputils.messagerouter.*;
+import archtemputils.messagerouter.utils.*;
+import archtemputils.misc.*;
+import archtemputils.network.*;
+
+<%customCode key="<%className%>Imports" openingCommentCharacters="//"%>
+
+
+
+public class <%className%>DAO_NET extends TCPRequestModule_Base implements <%className%>DAO {
+
+
+	//*********************************
+	public <%className%>DAO_NET(MessageRouter p_parentMessageRouter) {
+		super(p_parentMessageRouter);
+
+		setName("<%className%> DAO network client");	// Set the thread name so that it is identifiable in the monitor and in error messages.
+	}
+
+
+	//*********************************
+	public <%className%>DAO_NET(String p_requestKey, MessageRouter p_parentMessageRouter) {
+		super(p_requestKey, p_parentMessageRouter);
+
+		setName("<%className%> DAO network client");	// Set the thread name so that it is identifiable in the monitor and in error messages.
+	}
+
+
+	//*********************************
+	/**
+	 * This should never be used on a client-side handler so it should return NULL.
+	 */
+	@Override
+	public TCPRequestModule_Base GetClone(String p_requestKey, MessageRouter p_parentMessageRouter) {
+		return null;
+	}
+
+
+	//*********************************
+	@Override
+	public String GetModuleID() {
+		return <%className%>DAO_NET_Server.MODULE_NAME;
+	}
+
+
+	//*********************************
+	@Override
+	public void Execute() {
+		// This should never be run on this client-side request.
+		Logger.LogError("<%className%>DAO_NET cannot be executed as a thread.");
+	}
+
+
+	//*********************************
+	@Override
+	public LinkedList<<%className%>> LoadAll<%className%>(String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+			return LoadAll<%className%>(t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_NET.LoadAll<%className%>(String) failed with error: ", t_error);
+			return null;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public LinkedList<<%className%>> LoadAll<%className%>(ConnectionProxy p_dbConnection)
+	{
+		try {
+			// The first thing we'll do is see if we can find the target node name.
+			String t_targetNodeName = m_parentMessageRouter.GetDirectory().GetNodeNameProvidingModuleName(GetModuleID());
+			if (t_targetNodeName == null) {
+				Logger.LogError("<%className%>DAO_NET.LoadAll<%className%>() failed to find a target node for the module ID [" + GetModuleID() + "].");
+				return null;
+			}
+
+
+			// Add the parameters to the request.
+			JSONParameters t_parameters = new JSONParameters();
+			t_parameters.SetParameter("dbConnetionID", p_dbConnection.GetConnectionID());
+
+
+			String t_jsonString = ExecuteStringResultCall("LoadAll<%className%>",	<%tabStop stopType = "stop" offset = "108" %>// String	p_commandString,
+														  t_targetNodeName,	<%tabStop stopType = "stop" offset = "108" %>// String	p_targetNodeID,
+														  null,	<%tabStop stopType = "stop" offset = "108" %>// String	p_targetServiceID,
+														  <%className%>DAO_NET_Server.MODULE_NAME,	<%tabStop stopType = "stop" offset = "108" %>// String	p_targetModuleID,
+														  <%className%>DAO_NET_Server.MODULE_NAME,	<%tabStop stopType = "stop" offset = "108" %>// String	p_sourceModuleID,
+														  <%className%>DAO_NET_Server.MESSAGE_ROUTER_PRIORITY,	<%tabStop stopType = "stop" offset = "108" %>// String	p_messagePriority,
+														  t_parameters.Marshal().getBytes(),	<%tabStop stopType = "stop" offset = "108" %>// byte[]	p_parameters)
+														  true);	<%tabStop stopType = "stop" offset = "108" %>// boolean	p_removeThisHandlerAfterEachCall
+
+			if ((t_jsonString == null) || t_jsonString.isBlank()) {
+				Logger.LogError("<%className%>DAO_NET.LoadAll<%className%>() received a response with no contents.");
+				return null;
+			}
+
+			InOrder<%className%>Marshalling	t_marshaler		= new InOrder<%className%>Marshalling();
+			LinkedList<<%className%>>		t_resultList	= t_marshaler.UnMarshalList(t_jsonString);
+			if (t_resultList == null) {
+				Logger.LogError("<%className%>DAO_NET.LoadAll<%className%>() failed to unmarshal the response string [" + t_jsonString + "].");
+				return null;
+			}
+
+			return t_resultList;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_NET.LoadAll<%className%>() failed with error: ", t_error);
+			return null;
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public <%className%> Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>(<%variable name = "dbPrimaryKeyParameters" evalmode = "evaluate" %>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+			return Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>(<%variable name = "dbPrimaryKeyForwardParameters" evalmode = "evaluate" %>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_NET.Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>(String) failed with error: ", t_error);
+			return null;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public <%className%> Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>(<%variable name = "dbPrimaryKeyParameters" evalmode = "evaluate" %>, ConnectionProxy p_dbConnection)
+	{
+		try {
+			// The first thing we'll do is see if we can find the target node name.
+			String t_targetNodeName = m_parentMessageRouter.GetDirectory().GetNodeNameProvidingModuleName(GetModuleID());
+			if (t_targetNodeName == null) {
+				Logger.LogError("<%className%>DAO_NET.Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>() failed to find a target node for the module ID [" + GetModuleID() + "].");
+				return null;
+			}
+
+
+			// Add the parameters to the request.
+			JSONParameters t_parameters = new JSONParameters();
+			t_parameters.SetParameter("dbConnetionID", p_dbConnection.GetConnectionID());
+<%endtext%>
+
+
+<%foreach node=column%>
+
+	<%if <%isPrimaryKey%> = true%>
+
+		<%text%>			t_parameters.SetParameter("<%firstLetterToLowerCase value = <%name%>%>", p_<%firstLetterToLowerCase value = <%name%>%>);
+<%endtext%>
+
+	<%endif%>
+
+<%endfor%>
+
+<%text%>
+			String t_jsonString = ExecuteStringResultCall("Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>",	<%tabStop stopType = "stop" offset = "108" %>// String	p_commandString,
+														  t_targetNodeName,	<%tabStop stopType = "stop" offset = "108" %>// String	p_targetNodeID,
+														  null,	<%tabStop stopType = "stop" offset = "108" %>// String	p_targetServiceID,
+														  <%className%>DAO_NET_Server.MODULE_NAME,	<%tabStop stopType = "stop" offset = "108" %>// String	p_targetModuleID,
+														  <%className%>DAO_NET_Server.MODULE_NAME,	<%tabStop stopType = "stop" offset = "108" %>// String	p_sourceModuleID,
+														  <%className%>DAO_NET_Server.MESSAGE_ROUTER_PRIORITY,	<%tabStop stopType = "stop" offset = "108" %>// String	p_messagePriority,
+														  t_parameters.Marshal().getBytes(),	<%tabStop stopType = "stop" offset = "108" %>// byte[]	p_parameters
+														  true);	<%tabStop stopType = "stop" offset = "108" %>// boolean	p_removeThisHandlerAfterEachCall
+
+			if ((t_jsonString == null) || t_jsonString.isBlank()) {
+				Logger.LogError("<%className%>DAO_NET.Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>() received a response with no contents.");
+				return null;
+			}
+
+			InOrder<%className%>Marshalling	t_marshaler		= new InOrder<%className%>Marshalling();
+			<%className%>					t_result		= t_marshaler.UnMarshal(t_jsonString);
+			if (t_result == null) {
+				Logger.LogError("<%className%>DAO_NET.Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>() failed to unmarshal the response string [" + t_jsonString + "].");
+				return null;
+			}
+
+			return t_result;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_NET.Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>() failed with error: ", t_error);
+			return null;
+		}
+	}<%endtext%>
+
+
+
+<%foreach node=column%>
+
+	<%foreach node=foreignKey%>
+
+		<%text%>
+
+	//*********************************
+	@Override
+	public LinkedList<<%^^className%>> LoadAll<%^^className%>For<%^name%>(<%variable name = "foreignKeyDBParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%^name%>%>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+			return LoadAll<%^^className%>For<%^name%>(p_<%firstLetterToLowerCase value = <%^name%>%>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%^^className%>DAO_NET.LoadAll<%^^className%>For<%^name%>(String) failed with error: ", t_error);
+			return null;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public LinkedList<<%^^className%>> LoadAll<%^^className%>For<%^name%>(<%variable name = "foreignKeyDBParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%^name%>%>, ConnectionProxy p_dbConnection)
+	{
+		try {
+			// The first thing we'll do is see if we can find the target node name.
+			String t_targetNodeName = m_parentMessageRouter.GetDirectory().GetNodeNameProvidingModuleName(GetModuleID());
+			if (t_targetNodeName == null) {
+				Logger.LogError("<%^^className%>DAO_NET.LoadAll<%^^className%>For<%^name%>() failed to find a target node for the module ID [" + GetModuleID() + "].");
+				return null;
+			}
+
+
+			// Add the parameters to the request.
+			JSONParameters t_parameters = new JSONParameters();
+			t_parameters.SetParameter("dbConnetionID", p_dbConnection.GetConnectionID());
+			t_parameters.SetParameter("<%firstLetterToLowerCase value = <%^name%>%>", p_<%firstLetterToLowerCase value = <%^name%>%>);
+
+			String t_jsonString = ExecuteStringResultCall("LoadAll<%^^className%>For<%^name%>",	<%tabStop stopType = "stop" offset = "108" %>// String	p_commandString,
+														  t_targetNodeName,	<%tabStop stopType = "stop" offset = "108" %>// String	p_targetNodeID,
+														  null,	<%tabStop stopType = "stop" offset = "108" %>// String	p_targetServiceID,
+														  <%^^className%>DAO_NET_Server.MODULE_NAME,	<%tabStop stopType = "stop" offset = "108" %>// String	p_targetModuleID,
+														  <%^^className%>DAO_NET_Server.MODULE_NAME,	<%tabStop stopType = "stop" offset = "108" %>// String	p_sourceModuleID,
+														  <%^^className%>DAO_NET_Server.MESSAGE_ROUTER_PRIORITY,	<%tabStop stopType = "stop" offset = "108" %>// String	p_messagePriority,
+														  t_parameters.Marshal().getBytes(),	<%tabStop stopType = "stop" offset = "108" %>// byte[]	p_parameters
+														  true);	<%tabStop stopType = "stop" offset = "108" %>// boolean	p_removeThisHandlerAfterEachCall
+
+			if ((t_jsonString == null) || t_jsonString.isBlank()) {
+				Logger.LogError("<%^^className%>DAO_NET.LoadAll<%^^className%>For<%^name%>() received a response with no contents.");
+				return null;
+			}
+
+			InOrder<%^^className%>Marshalling	t_marshaler		= new InOrder<%^^className%>Marshalling();
+			LinkedList<<%^^className%>>		t_resultList	= t_marshaler.UnMarshalList(t_jsonString);
+			if (t_resultList == null) {
+				Logger.LogError("<%^^className%>DAO_NET.LoadAll<%^^className%>For<%^name%>() failed to unmarshal the response string [" + t_jsonString + "].");
+				return null;
+			}
+
+			return t_resultList;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%^^className%>DAO_NET.LoadAll<%^^className%>For<%^name%>() failed with error: ", t_error);
+			return null;
+		}
+	}<%endtext%>
+
+	<%endfor%>
+
+<%endfor%>
+
+
+
+<%foreach node=tableRelationship%>
+	<%text%>
+
+	//*********************************
+	@Override
+	public LinkedList<<%^className%>> LoadAll<%^className%>For<%parentColumnName%>Vector(<%variable name = "dbParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%parentColumnName%>%>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+			return LoadAll<%^className%>For<%parentColumnName%>Vector(p_<%firstLetterToLowerCase value = <%^name%>%>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%^className%>DAO_NET.LoadAll<%^className%>For<%parentColumnName%>Vector(String) failed with error: ", t_error);
+			return null;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public LinkedList<<%^className%>> LoadAll<%^className%>For<%parentColumnName%>Vector(<%variable name = "dbParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%parentColumnName%>%>, ConnectionProxy p_dbConnection)
+	{
+		try {
+			// The first thing we'll do is see if we can find the target node name.
+			String t_targetNodeName = m_parentMessageRouter.GetDirectory().GetNodeNameProvidingModuleName(GetModuleID());
+			if (t_targetNodeName == null) {
+				Logger.LogError("<%^className%>DAO_NET.LoadAll<%^className%>For<%parentColumnName%>Vector() failed to find a target node for the module ID [" + GetModuleID() + "].");
+				return null;
+			}
+
+
+			// Add the parameters to the request.
+			JSONParameters t_parameters = new JSONParameters();
+			t_parameters.SetParameter("dbConnetionID", p_dbConnection.GetConnectionID());
+			t_parameters.SetParameter("<%firstLetterToLowerCase value = <%parentColumnName%>%>", p_<%firstLetterToLowerCase value = <%parentColumnName%>%>);
+
+			String t_jsonString = ExecuteStringResultCall("LoadAll<%^className%>For<%parentColumnName%>Vector",	<%tabStop stopType = "stop" offset = "108" %>// String	p_commandString,
+														  t_targetNodeName,	<%tabStop stopType = "stop" offset = "108" %>// String	p_targetNodeID,
+														  null,	<%tabStop stopType = "stop" offset = "108" %>// String	p_targetServiceID,
+														  <%^className%>DAO_NET_Server.MODULE_NAME,	<%tabStop stopType = "stop" offset = "108" %>// String	p_targetModuleID,
+														  <%^className%>DAO_NET_Server.MODULE_NAME,	<%tabStop stopType = "stop" offset = "108" %>// String	p_sourceModuleID,
+														  <%^className%>DAO_NET_Server.MESSAGE_ROUTER_PRIORITY,	<%tabStop stopType = "stop" offset = "108" %>// String	p_messagePriority,
+														  t_parameters.Marshal().getBytes(),	<%tabStop stopType = "stop" offset = "108" %>// byte[]	p_parameters
+														  true);	<%tabStop stopType = "stop" offset = "108" %>// boolean	p_removeThisHandlerAfterEachCall
+
+			if ((t_jsonString == null) || t_jsonString.isBlank()) {
+				Logger.LogError("<%^className%>DAO_NET.LoadAll<%^className%>For<%parentColumnName%>Vector() received a response with no contents.");
+				return null;
+			}
+
+			InOrder<%^className%>Marshalling	t_marshaler		= new InOrder<%^className%>Marshalling();
+			LinkedList<<%^className%>>		t_resultList	= t_marshaler.UnMarshalList(t_jsonString);
+			if (t_resultList == null) {
+				Logger.LogError("<%^className%>DAO_NET.LoadAll<%^className%>For<%parentColumnName%>Vector() failed to unmarshal the response string [" + t_jsonString + "].");
+				return null;
+			}
+
+			return t_resultList;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%^className%>DAO_NET.LoadAll<%^className%>For<%parentColumnName%>Vector() failed with error: ", t_error);
+			return null;
+		}
+	}<%endtext%>
+
+<%endfor%>
+
+
+
+<%text%>
+
+
+	<%customCode key=<%className%>CustomLoaders openingCommentCharacters="//"%>
+
+
+	//*********************************
+	@Override
+	public LinkedList<<%className%>> Load<%className%>WithSQL(PreparedStatement p_preparedStatement, ConnectionProxy p_dbConnection)
+	{
+		return null;	// Net clients should never call this function.
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Create<%className%>(<%className%> p_new<%className%>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+			return Create<%className%>(p_new<%className%>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_NET.Create<%className%>(String) failed with error: ", t_error);
+			return false;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Create<%className%>(<%className%> p_new<%className%>, ConnectionProxy p_dbConnection)
+	{
+		try {
+			// The first thing we'll do is see if we can find the target node name.
+			String t_targetNodeName = m_parentMessageRouter.GetDirectory().GetNodeNameProvidingModuleName(GetModuleID());
+			if (t_targetNodeName == null) {
+				Logger.LogError("<%className%>DAO_NET.Create<%className%>() failed to find a target node for the module ID [" + GetModuleID() + "].");
+				return false;
+			}
+
+
+			// Add the parameters to the request.
+			InOrder<%className%>Marshalling t_marshaler = new InOrder<%className%>Marshalling();
+			JSONParameters t_parameters = new JSONParameters();
+			t_parameters.SetParameter("dbConnetionID", p_dbConnection.GetConnectionID());
+			t_parameters.SetJSONParameter("new<%className%>", t_marshaler.Marshal(p_new<%className%>));
+
+			// We have to get the new DB ID back and set it on this local object, so this has to be a JSON call instead of a boolean call.
+			String t_jsonString = ExecuteStringResultCall("Create<%className%>",	<%tabStop stopType = "stop" offset = "108" %>// String	p_commandString,
+														  t_targetNodeName,	<%tabStop stopType = "stop" offset = "108" %>// String	p_targetNodeID,
+														  null,	<%tabStop stopType = "stop" offset = "108" %>// String	p_targetServiceID,
+														  <%className%>DAO_NET_Server.MODULE_NAME,	<%tabStop stopType = "stop" offset = "108" %>// String	p_targetModuleID,
+														  <%className%>DAO_NET_Server.MODULE_NAME,	<%tabStop stopType = "stop" offset = "108" %>// String	p_sourceModuleID,
+														  <%className%>DAO_NET_Server.MESSAGE_ROUTER_PRIORITY,	<%tabStop stopType = "stop" offset = "108" %>// String	p_messagePriority,
+														  t_parameters.Marshal().getBytes(),	<%tabStop stopType = "stop" offset = "108" %>// byte[]	p_parameters
+														  true);	<%tabStop stopType = "stop" offset = "108" %>// boolean	p_removeThisHandlerAfterEachCall
+
+			if ((t_jsonString == null) || t_jsonString.isBlank()) {
+				Logger.LogError("<%className%>DAO_NET.Create<%className%>() received a response with no contents.");
+				return false;
+			}
+
+			<%className%> t_result = t_marshaler.UnMarshal(t_jsonString);
+			if (t_result == null) {
+				Logger.LogError("<%className%>DAO_NET.Create<%className%>() failed to unmarshal the response string [" + t_jsonString + "].");
+				return false;
+			}
+
+			p_new<%className%>.MergeChanges(t_result);	// We need to synchronize the local object's contents with the remote one's (including the version number and new primary key, if applicable).
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_NET.Create<%className%>() failed with error: ", t_error);
+			return false;
+		}
+
+		return true;
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Update<%className%>(<%className%> p_new<%className%>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+			return Update<%className%>(p_new<%className%>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_NET.Update<%className%>(String) failed with error: ", t_error);
+			return false;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Update<%className%>(<%className%> p_target<%className%>, ConnectionProxy p_dbConnection)
+	{
+		try {
+			// The first thing we'll do is see if we can find the target node name.
+			String t_targetNodeName = m_parentMessageRouter.GetDirectory().GetNodeNameProvidingModuleName(GetModuleID());
+			if (t_targetNodeName == null) {
+				Logger.LogError("<%className%>DAO_NET.Update<%className%>() failed to find a target node for the module ID [" + GetModuleID() + "].");
+				return false;
+			}
+
+
+			// Add the parameters to the request.
+			InOrder<%className%>Marshalling t_marshaler = new InOrder<%className%>Marshalling();
+			JSONParameters t_parameters = new JSONParameters();
+			t_parameters.SetParameter("dbConnetionID", p_dbConnection.GetConnectionID());
+			t_parameters.SetJSONParameter("target<%className%>", t_marshaler.Marshal(p_target<%className%>));
+
+			String t_jsonString = ExecuteStringResultCall("Update<%className%>",	<%tabStop stopType = "stop" offset = "108" %>// String	p_commandString,
+														  t_targetNodeName,	<%tabStop stopType = "stop" offset = "108" %>// String	p_targetNodeID,
+														  null,	<%tabStop stopType = "stop" offset = "108" %>// String	p_targetServiceID,
+														  <%className%>DAO_NET_Server.MODULE_NAME,	<%tabStop stopType = "stop" offset = "108" %>// String	p_targetModuleID,
+														  <%className%>DAO_NET_Server.MODULE_NAME,	<%tabStop stopType = "stop" offset = "108" %>// String	p_sourceModuleID,
+														  <%className%>DAO_NET_Server.MESSAGE_ROUTER_PRIORITY,	<%tabStop stopType = "stop" offset = "108" %>// String	p_messagePriority,
+														  t_parameters.Marshal().getBytes(),	<%tabStop stopType = "stop" offset = "108" %>// byte[]	p_parameters
+														  true);	<%tabStop stopType = "stop" offset = "108" %>// boolean	p_removeThisHandlerAfterEachCall
+
+			if ((t_jsonString == null) || t_jsonString.isBlank()) {
+				Logger.LogError("<%className%>DAO_NET.Create<%className%>() received a response with no contents.");
+				return false;
+			}
+
+			<%className%> t_result = t_marshaler.UnMarshal(t_jsonString);
+			if (t_result == null) {
+				Logger.LogError("<%className%>DAO_NET.Update<%className%>() failed to unmarshal the response string [" + t_jsonString + "].");
+				return false;
+			}
+
+			p_target<%className%>.MergeChanges(t_result);	// We need to synchronize the local object's contents with the remote one's (particularly the version number).
+
+			return true;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_NET.Update<%className%>() failed with error: ", t_error);
+			return false;
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Delete<%className%>ForID(<%variable name = "dbPrimaryKeyParameters" evalmode = "evaluate" %>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+			return Delete<%className%>ForID(<%variable name = "dbPrimaryKeyForwardParameters" evalmode = "evaluate" %>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_NET.Delete<%className%>ForID(String) failed with error: ", t_error);
+			return false;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Delete<%className%>ForID(<%variable name = "dbPrimaryKeyParameters" evalmode = "evaluate" %>, ConnectionProxy p_dbConnection)
+	{
+		try {
+			// The first thing we'll do is see if we can find the target node name.
+			String t_targetNodeName = m_parentMessageRouter.GetDirectory().GetNodeNameProvidingModuleName(GetModuleID());
+			if (t_targetNodeName == null) {
+				Logger.LogError("<%className%>DAO_NET.Delete<%className%>ForID() failed to find a target node for the module ID [" + GetModuleID() + "].");
+				return false;
+			}
+
+
+			// Add the parameters to the request.
+			JSONParameters t_parameters = new JSONParameters();
+			t_parameters.SetParameter("dbConnetionID", p_dbConnection.GetConnectionID());
+<%endtext%>
+
+
+<%foreach node=column%>
+
+	<%if <%isPrimaryKey%> = true%>
+
+		<%text%>			t_parameters.SetParameter("<%firstLetterToLowerCase value = <%name%>%>", p_<%firstLetterToLowerCase value = <%name%>%>);
+<%endtext%>
+
+	<%endif%>
+
+<%endfor%>
+
+
+<%text%>
+			return ExecuteBooleanResultCall("Delete<%className%>ForID",	<%tabStop stopType = "stop" offset = "100" %>// String	p_commandString,
+											t_targetNodeName,	<%tabStop stopType = "stop" offset = "100" %>// String	p_targetNodeID,
+											null,	<%tabStop stopType = "stop" offset = "100" %>// String	p_targetServiceID,
+											<%className%>DAO_NET_Server.MODULE_NAME,	<%tabStop stopType = "stop" offset = "100" %>// String	p_targetModuleID,
+											<%className%>DAO_NET_Server.MODULE_NAME,	<%tabStop stopType = "stop" offset = "100" %>// String	p_sourceModuleID,
+											<%className%>DAO_NET_Server.MESSAGE_ROUTER_PRIORITY,	<%tabStop stopType = "stop" offset = "100" %>// String	p_messagePriority,
+											t_parameters.Marshal().getBytes(),	<%tabStop stopType = "stop" offset = "100" %>// byte[]	p_parameters
+											true);	<%tabStop stopType = "stop" offset = "100" %>// boolean	p_removeThisHandlerAfterEachCall
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_NET.Delete<%className%>ForID() failed with error: ", t_error);
+			return false;
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Delete<%className%>(<%className%> p_target<%className%>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+			return Delete<%className%>(p_target<%className%>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_NET.Delete<%className%>(String) failed with error: ", t_error);
+			return false;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Delete<%className%>(<%className%> p_target<%className%>, ConnectionProxy p_dbConnection)
+	{
+		try {
+			// The first thing we'll do is see if we can find the target node name.
+			String t_targetNodeName = m_parentMessageRouter.GetDirectory().GetNodeNameProvidingModuleName(GetModuleID());
+			if (t_targetNodeName == null) {
+				Logger.LogError("<%className%>DAO_NET.Delete<%className%>() failed to find a target node for the module ID [" + GetModuleID() + "].");
+				return false;
+			}
+
+
+			// Add the parameters to the request.
+			InOrder<%className%>Marshalling t_marshaler = new InOrder<%className%>Marshalling();
+			JSONParameters t_parameters = new JSONParameters();
+			t_parameters.SetParameter("dbConnetionID", p_dbConnection.GetConnectionID());
+			t_parameters.SetJSONParameter("target<%className%>", t_marshaler.Marshal(p_target<%className%>));
+
+			return ExecuteBooleanResultCall("Delete<%className%>",	<%tabStop stopType = "stop" offset = "100" %>// String	p_commandString,
+											t_targetNodeName,	<%tabStop stopType = "stop" offset = "100" %>// String	p_targetNodeID,
+											null,	<%tabStop stopType = "stop" offset = "100" %>// String	p_targetServiceID,
+											<%className%>DAO_NET_Server.MODULE_NAME,	<%tabStop stopType = "stop" offset = "100" %>// String	p_targetModuleID,
+											<%className%>DAO_NET_Server.MODULE_NAME,	<%tabStop stopType = "stop" offset = "100" %>// String	p_sourceModuleID,
+											<%className%>DAO_NET_Server.MESSAGE_ROUTER_PRIORITY,	<%tabStop stopType = "stop" offset = "100" %>// String	p_messagePriority,
+											t_parameters.Marshal().getBytes(),	<%tabStop stopType = "stop" offset = "100" %>// byte[]	p_parameters
+											true);	<%tabStop stopType = "stop" offset = "100" %>// boolean	p_removeThisHandlerAfterEachCall
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_NET.Delete<%className%>() failed with error: ", t_error);
+			return false;
+		}
+	}
+<%endtext%>
+
+
+
+
+<%foreach node=column%>
+
+	<%if exists=foreignKey%>
+
+		<%foreach node=foreignKey%>
+
+			<%text%>
+
+	//*********************************
+	@Override
+	public boolean Delete<%^^className%>For<%camelCase value = <%parentTableName%>%>ID(<%variable name = "foreignKeyDBParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%camelCase value = <%parentColumnName%>%>%>, ConnectionProxy p_dbConnection)
+	{
+		try {
+<%endtext%>
+
+
+			<%if <%^isNullable%> = true%>
+				<%text%>			if (p_<%firstLetterToLowerCase value = <%camelCase value = <%parentColumnName%>%>%> == null)
+				return true;	// If the ID is NULL, then there is nothing to do here so we can return true;
+
+<%endtext%>
+			<%endif%>
+
+
+			<%text%>			// The first thing we'll do is see if we can find the target node name.
+			String t_targetNodeName = m_parentMessageRouter.GetDirectory().GetNodeNameProvidingModuleName(GetModuleID());
+			if (t_targetNodeName == null) {
+				Logger.LogError("<%^^className%>DAO_NET.Delete<%^^className%>For<%camelCase value = <%parentTableName%>%>ID() failed to find a target node for the module ID [" + GetModuleID() + "].");
+				return false;
+			}
+
+
+			// Add the parameters to the request.
+			JSONParameters t_parameters = new JSONParameters();
+			t_parameters.SetParameter("dbConnetionID", p_dbConnection.GetConnectionID());
+			t_parameters.SetParameter("parentID", p_<%firstLetterToLowerCase value = <%camelCase value = <%parentColumnName%>%>%>);
+
+			return ExecuteBooleanResultCall("Delete<%^^className%>For<%camelCase value = <%parentTableName%>%>ID",	<%tabStop stopType = "stop" offset = "100" %>// String	p_commandString,
+											t_targetNodeName,	<%tabStop stopType = "stop" offset = "100" %>// String	p_targetNodeID,
+											null,	<%tabStop stopType = "stop" offset = "100" %>// String	p_targetServiceID,
+											<%^^className%>DAO_NET_Server.MODULE_NAME,	<%tabStop stopType = "stop" offset = "100" %>// String	p_targetModuleID,
+											<%^^className%>DAO_NET_Server.MODULE_NAME,	<%tabStop stopType = "stop" offset = "100" %>// String	p_sourceModuleID,
+											<%^^className%>DAO_NET_Server.MESSAGE_ROUTER_PRIORITY,	<%tabStop stopType = "stop" offset = "100" %>// String	p_messagePriority,
+											t_parameters.Marshal().getBytes(),	<%tabStop stopType = "stop" offset = "100" %>// byte[]	p_parameters
+											true);	<%tabStop stopType = "stop" offset = "100" %>// boolean	p_removeThisHandlerAfterEachCall
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%^^className%>DAO_NET.Delete<%^^className%>For<%camelCase value = <%parentTableName%>%>ID() failed with error: ", t_error);
+			return false;
+		}
+	}
+<%endtext%>
+
+		<%endfor%>
+
+	<%endif%>
+
+<%endfor%>
+
+
+
+
+<%text%>
+
+
+	<%customCode key=<%className%>Miscellaneous openingCommentCharacters="//"%>
+}
+<%endtext%>

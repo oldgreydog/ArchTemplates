@@ -1,0 +1,13 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+
+
+
+
+<%first optionalCounterName = "build" %>
+
+	<%file template=<%rootProjectTemplatePath%>/project/generate.template	filename=generate	destDir="<%root.global.rootOutputPath%>/<%^^projectName%>/java"		optionalMakeFileExecutable=true %>
+
+	<%include template=<%rootProjectTemplatePath%>/../project/project_setup.top.template %>
+
+<%endfirst%>

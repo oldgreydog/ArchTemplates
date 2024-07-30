@@ -1,0 +1,23 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+<%text%>/*
+ * This file was generated.
+ */
+
+package <%root.global.packageName%>.marshalling;
+
+
+
+import java.util.*;
+import <%root.global.packageName%>.value_objects.*;
+
+
+
+public interface <%className%>Marshalling {
+
+	public String			Marshal(<%className%> p_<%firstLetterToLowerCase value = <%className%>%>);
+	public String			Marshal(Collection<<%className%>> p_<%firstLetterToLowerCase value = <%className%>%>Collection);
+
+	public <%className%>				UnMarshal(String p_string);
+	public LinkedList<<%className%>>	UnMarshalList(String p_string);
+}
+<%endtext%>

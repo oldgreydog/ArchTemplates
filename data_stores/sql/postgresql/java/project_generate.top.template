@@ -1,0 +1,42 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+
+<%typeConvertLoadFile file="<%root.global.rootProjectTemplatePath%>/DataType_Conversion_PostgreSQL_to_Java.xml" %>
+
+<%file template=<%root.global.rootProjectTemplatePath%>/project/build.xml.template		filename="build.xml"	destDir="<%root.global.rootOutputPath%>/<%root.global.projectName%>/java" %>
+<%file template=<%root.global.rootProjectTemplatePath%>/project/build.template			filename="build"		destDir="<%root.global.rootOutputPath%>/<%root.global.projectName%>/java"	optionalMakeFileExecutable=true %>
+
+
+<%foreach node=table%>
+	<%file template=<%root.global.rootProjectTemplatePath%>/value_objects/value_object.template						filename="<%className%>.java"									destDir="<%root.global.rootOutputPath%>/<%root.global.projectName%>/java/<%root.global.projectName%>/src/<%root.global.projectName%>/value_objects" 					%>
+
+	<%file template=<%root.global.rootProjectTemplatePath%>/marshalling/marshalling_interface.template				filename="<%className%>Marshalling.java"						destDir="<%root.global.rootOutputPath%>/<%root.global.projectName%>/java/<%root.global.projectName%>/src/<%root.global.projectName%>/marshalling"						%>
+	<%file template=<%root.global.rootProjectTemplatePath%>/marshalling/marshalling_inorder.template				filename="InOrder<%className%>Marshalling.java"					destDir="<%root.global.rootOutputPath%>/<%root.global.projectName%>/java/<%root.global.projectName%>/src/<%root.global.projectName%>/marshalling/inorder"				%>
+
+	<%file template=<%root.global.rootProjectTemplatePath%>/data_access_objects/dao_interface.template				filename="<%className%>DAO.java"								destDir="<%root.global.rootOutputPath%>/<%root.global.projectName%>/java/<%root.global.projectName%>/src/<%root.global.projectName%>/data_access_objects"				%>
+	<%file template=<%root.global.rootProjectTemplatePath%>/data_access_objects/dao_db.template						filename="<%className%>DAO_DB.java"								destDir="<%root.global.rootOutputPath%>/<%root.global.projectName%>/java/<%root.global.projectName%>/src/<%root.global.projectName%>/data_access_objects/db"			%>
+	<%file template=<%root.global.rootProjectTemplatePath%>/data_access_objects/dao_cache.template					filename="<%className%>DAO_Cache.java"							destDir="<%root.global.rootOutputPath%>/<%root.global.projectName%>/java/<%root.global.projectName%>/src/<%root.global.projectName%>/data_access_objects/cache"			%>
+
+	<%file template=<%root.global.rootProjectTemplatePath%>/data_access_objects/dao_net_client.template				filename="<%className%>DAO_NET.java"							destDir="<%root.global.rootOutputPath%>/<%root.global.projectName%>/java/<%root.global.projectName%>/src/<%root.global.projectName%>/data_access_objects/net"			%>
+	<%file template=<%root.global.rootProjectTemplatePath%>/data_access_objects/dao_net_server.template				filename="<%className%>DAO_NET_Server.java"						destDir="<%root.global.rootOutputPath%>/<%root.global.projectName%>/java/<%root.global.projectName%>/src/<%root.global.projectName%>/data_access_objects/net/server"	%>
+
+	<%file template=<%root.global.rootProjectTemplatePath%>/testing/value_objects/vo_unit_test.template				filename="<%className%>MemberValidationTest.java"				destDir="<%root.global.rootOutputPath%>/<%root.global.projectName%>/java/<%root.global.projectName%>/src/<%root.global.projectName%>/testing/unit/value_objects"		%>
+	<%file template=<%root.global.rootProjectTemplatePath%>/testing/data_generation/vo_data_generator.template		filename="<%className%>DataGenerator.java"						destDir="<%root.global.rootOutputPath%>/<%root.global.projectName%>/java/<%root.global.projectName%>/src/<%root.global.projectName%>/testing/unit/data_generation"		%>
+	<%file template=<%root.global.rootProjectTemplatePath%>/testing/daos/dao_unit_test.template						filename="<%className%>DAOTest.java"							destDir="<%root.global.rootOutputPath%>/<%root.global.projectName%>/java/<%root.global.projectName%>/src/<%root.global.projectName%>/testing/unit/daos"					%>
+
+<%endfor%>
+
+
+<%copyFile sourceFilePath=<%root.global.rootProjectTemplatePath%>/testing/TestingConfig.xml																							targetDirectory="<%root.global.rootOutputPath%>/config/<%root.global.projectName%>/testing"									%>
+<%file template=<%root.global.rootProjectTemplatePath%>/testing/testing_config.template								filename="<%root.global.projectName%>UnitTestConfig.xml"		destDir="<%root.global.rootOutputPath%>/config/<%root.global.projectName%>/testing"											%>
+<%file template=<%root.global.rootProjectTemplatePath%>/testing/run_testing_gui.template							filename="run_testing_gui"										destDir="<%root.global.rootOutputPath%>/config/<%root.global.projectName%>/testing"			optionalMakeFileExecutable=true	%>
+
+<%file template=<%root.global.rootProjectTemplatePath%>/testing/unit_test_root_node.template						filename="<%root.global.projectName%>UnitTests.java"			destDir="<%root.global.rootOutputPath%>/<%root.global.projectName%>/java/<%root.global.projectName%>/src/<%root.global.projectName%>/testing/unit"						%>
+<%file template=<%root.global.rootProjectTemplatePath%>/testing/value_objects/vo_unit_test_tree_node.template		filename="<%root.global.projectName%>VOUnitTestsNode.java"		destDir="<%root.global.rootOutputPath%>/<%root.global.projectName%>/java/<%root.global.projectName%>/src/<%root.global.projectName%>/testing/unit/value_objects"		%>
+<%file template=<%root.global.rootProjectTemplatePath%>/testing/daos/dao_unit_test_tree_node.template				filename="<%root.global.projectName%>DAOUnitTestsNode.java"		destDir="<%root.global.rootOutputPath%>/<%root.global.projectName%>/java/<%root.global.projectName%>/src/<%root.global.projectName%>/testing/unit/daos"					%>
+
+
+<%file template=<%root.global.rootProjectTemplatePath%>/marshalling/marshalling_factory.template					filename="<%root.global.databaseName%>MarshallingFactory.java"		destDir="<%root.global.rootOutputPath%>/<%root.global.projectName%>/java/<%root.global.projectName%>/src/<%root.global.projectName%>/marshalling"					%>
+<%file template=<%root.global.rootProjectTemplatePath%>/data_access_objects/dao_server_factory.template				filename="<%root.global.databaseName%>DAOFactory.java"				destDir="<%root.global.rootOutputPath%>/<%root.global.projectName%>/java/<%root.global.projectName%>/src/<%root.global.projectName%>/data_access_objects/factory"	%>
+<%file template=<%root.global.rootProjectTemplatePath%>/data_access_objects/dao_factory_config.template				filename="<%root.global.databaseName%>DAOConfig.xml"				destDir="<%root.global.rootOutputPath%>/config/<%root.global.projectName%>"			%>
+<%file template=<%root.global.rootProjectTemplatePath%>/data_access_objects/dao_net_module_config.template			filename="<%root.global.databaseName%>ServerModuleConfig.xml"		destDir="<%root.global.rootOutputPath%>/config/<%root.global.projectName%>"			%>

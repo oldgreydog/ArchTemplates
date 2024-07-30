@@ -1,0 +1,87 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+<%text%><?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="all" name="<%root.global.projectName%>">
+
+	<property environment="env"/>
+	<property name="jar_dir" value="lib"/>
+	<property name="ext_jar_dir" value="../../lib/java"/>
+
+	<echo message="Ant java version: ${ant.java.version}" />
+
+	<target name="clean" description="Destroys all generated files and dirs.">
+		<delete  failonerror="false">
+			<fileset dir="<%root.global.projectName%>/bin" casesensitive="no" erroronmissingdir="false">
+				<include name="**/*.*"/>
+			</fileset>
+			<fileset dir="${jar_dir}" casesensitive="no" erroronmissingdir="false">
+				<include name="*.jar"/>
+			</fileset>
+		</delete>
+	</target>
+
+
+	<target name="<%root.global.projectName%>_jar">
+		<mkdir dir="<%root.global.projectName%>/bin"/>
+
+		<javac includeantruntime="false" srcdir="<%root.global.projectName%>/src" destdir="<%root.global.projectName%>/bin" debug="true">
+			<exclude name="<%root.global.projectName%>/testing/**/*.java"/>
+			<classpath>
+				<pathelement path="${ext_jar_dir}/coreutil.jar"/>
+				<pathelement path="${ext_jar_dir}/gson-2.10.1.jar"/>
+				<pathelement path="${ext_jar_dir}/archtemputil_misc.jar"/>
+				<pathelement path="${ext_jar_dir}/archtemputil_threads.jar"/>
+				<pathelement path="${ext_jar_dir}/archtemputil_database.jar"/>
+				<pathelement path="${ext_jar_dir}/archtemputil_network.jar"/>
+				<pathelement path="${ext_jar_dir}/java_testing_core.jar"/>
+			</classpath>
+		</javac>
+
+		<mkdir dir="${jar_dir}"/>
+		<delete file="${jar_dir}/<%root.global.projectName%>.jar"/>
+		<jar basedir="<%root.global.projectName%>/bin"
+			 excludes="<%root.global.projectName%>/testing/**/*.class"
+			 jarfile="${jar_dir}/<%root.global.projectName%>.jar">
+		</jar>
+
+		<!--<delete dir="<%root.global.projectName%>/bin"/>-->
+	</target>
+
+
+	<target name="<%root.global.projectName%>_testing_jar" depends="<%root.global.projectName%>_jar">
+		<mkdir dir="<%root.global.projectName%>/bin"/>
+
+		<javac includeantruntime="false" srcdir="<%root.global.projectName%>/src" destdir="<%root.global.projectName%>/bin" debug="true">
+			<include name="**/<%root.global.projectName%>/testing/**/*.java"/>
+			<classpath>
+				<pathelement path="${ext_jar_dir}/coreutil.jar"/>
+				<pathelement path="${ext_jar_dir}/gson-2.10.1.jar"/>
+				<pathelement path="${ext_jar_dir}/archtemputil_misc.jar"/>
+				<pathelement path="${ext_jar_dir}/archtemputil_threads.jar"/>
+				<pathelement path="${ext_jar_dir}/archtemputil_database.jar"/>
+				<pathelement path="${ext_jar_dir}/archtemputil_network.jar"/>
+				<pathelement path="${ext_jar_dir}/java_testing_core.jar"/>
+				<pathelement path="${jar_dir}/<%root.global.projectName%>.jar"/>
+			</classpath>
+		</javac>
+
+		<mkdir dir="${jar_dir}"/>
+		<delete file="${jar_dir}/<%root.global.projectName%>_testing.jar"/>
+		<jar basedir="<%root.global.projectName%>/bin"
+			 includes="<%root.global.projectName%>/testing/**/*.class"
+			 jarfile="${jar_dir}/<%root.global.projectName%>_testing.jar">
+		</jar>
+
+		<!--<delete dir="<%root.global.projectName%>/bin"/>-->
+	</target>
+
+
+
+	<target name="all"
+			depends="<%root.global.projectName%>_jar,
+					 <%root.global.projectName%>_testing_jar" >
+	</target>
+
+</project>
+
+<%endtext%>

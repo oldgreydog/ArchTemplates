@@ -1,0 +1,32 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+<%tabSettings tabLength = "4" outputType = "tabs" %>
+
+<%text%><?xml version="1.0" encoding="UTF-8"?>
+<!-- This file was generated.  Custom edits outside custom code blocks may be lost on regeneration -->
+
+<Node name="root">
+
+	<Node name="routerModules">
+
+		<Node name="tcpModules">
+
+<%endtext%>
+
+
+<%foreach node=table%>
+
+	<%text%>			<Node name="module">
+				<Value name="class"	><%root.global.packageName%>.data_access_objects.net.server.<%className%>DAO_NET_Server</Value>
+			</Node>
+<%endtext%>
+
+<%endfor%>
+
+
+<%text%>
+		</Node>
+
+	</Node>
+
+</Node>
+<%endtext%>

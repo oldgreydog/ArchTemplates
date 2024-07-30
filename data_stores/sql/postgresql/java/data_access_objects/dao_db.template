@@ -1,0 +1,1251 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+<%tabSettings tabLength = "4" outputType = "tabs" %>
+
+
+<<< I moved the variable definitions to a separate file since they are almost all shared by all of the DAO templates. >>>
+<%include template=<%root.global.rootProjectTemplatePath%>/data_access_objects/dao_variables.template %>
+
+
+<%text%>/*
+ * This file was generated.
+ */
+
+package <%root.global.packageName%>.data_access_objects.db;
+
+
+
+import java.sql.*;
+import java.time.*;
+import java.util.*;
+
+import <%root.global.packageName%>.value_objects.*;
+import <%root.global.packageName%>.data_access_objects.*;
+import coreutil.logging.*;
+import archtemputils.database.*;
+import archtemputils.database.DBConnectionManager.*;
+
+<%customCode key="<%className%>Imports" openingCommentCharacters="//"%>
+
+
+
+public class <%className%>DAO_DB implements <%className%>DAO {
+
+
+	//*********************************
+	public <%className%>DAO_DB() {}
+
+
+	//*********************************
+	@Override
+	public LinkedList<<%className%>> LoadAll<%className%>(String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+
+			return LoadAll<%className%>(t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_DB.LoadAll<%className%>(String) failed with error: ", t_error);
+			return null;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	/**
+	* This version of the function should only be used if it is being included in an external transaction where the passed in connection has its setAutoCommit() is set to FALSE;
+	*
+	*/
+	@Override
+	public LinkedList<<%className%>> LoadAll<%className%>(ConnectionProxy p_dbConnection)
+	{
+		StringBuilder t_sql = new StringBuilder();
+		t_sql.append("SELECT " + <%className%>.GetColumnList());
+		t_sql.append(" FROM <%sqlName%>;");
+
+		PreparedStatement t_preparedStatement = null;
+		try {
+			t_preparedStatement = p_dbConnection.prepareStatement(t_sql.toString());
+			if (t_preparedStatement == null) {
+				Logger.LogError("<%className%>DAO_DB.LoadAll<%className%>() failed to get a prepared statement for [" + p_dbConnection.GetConnectionID() + "].");
+				return null;
+			}
+
+			LinkedList<<%className%>> t_results = Load<%className%>WithSQL(t_preparedStatement, p_dbConnection);
+			if (t_results == null) {
+				Logger.LogError("This is the SQL that failed: " + t_sql);
+				return null;
+			}
+
+			return t_results;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_DB.LoadAll<%className%>() failed with error: ", t_error);
+			Logger.LogError("This is the SQL that failed: " + t_sql);
+			return null;
+		}
+		finally {
+			if (t_preparedStatement != null)
+				try { t_preparedStatement.close(); } catch (Throwable t_dontCare) {}
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public <%className%> Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>(<%variable name = "dbPrimaryKeyParameters" evalmode = "evaluate" %>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+
+			return Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>(<%variable name = "dbPrimaryKeyForwardParameters" evalmode = "evaluate" %>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_DB.Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>(String) failed with error: ", t_error);
+			return null;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	/**
+	* This version of the function should only be used if it is being included in an external transaction where the passed in connection has its setAutoCommit() is set to FALSE;
+	*
+	*/
+	@Override
+	public <%className%> Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>(<%variable name = "dbPrimaryKeyParameters" evalmode = "evaluate" %>, ConnectionProxy p_dbConnection)
+	{
+		StringBuilder t_sql = new StringBuilder();
+		t_sql.append("SELECT " + <%className%>.GetColumnList());
+		t_sql.append(" FROM <%sqlName%> ");
+		t_sql.append(" WHERE <%endtext%>
+
+<%foreach node=column%>
+
+	<%if <%isPrimaryKey%> = true%>
+		<%first%>
+		<%else%>
+			<%text%> AND <%endtext%>
+		<%endfirst%>
+
+		<%text%><%sqlName%> = ?<%endtext%>
+
+	<%endif%>
+
+<%endfor%>
+
+<%text%>;");
+
+		PreparedStatement t_preparedStatement = null;
+		try {
+			t_preparedStatement = p_dbConnection.prepareStatement(t_sql.toString());
+			if (t_preparedStatement == null) {
+				Logger.LogError("<%className%>DAO_DB.Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>() failed to get a prepared statement for [" + p_dbConnection.GetConnectionID() + "].");
+				return null;
+			}
+
+			int t_index = 0;
+<%endtext%>
+
+<%foreach node=column%>
+
+	<%if <%isPrimaryKey%> = true%>
+
+		<%if <%or <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+				  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime %> = true %>
+
+			<%text%>			t_preparedStatement.setTimestamp(++t_index, Timestamp.valueOf(p_<%firstLetterToLowerCase value = <%name%>%>));
+<%endtext%>
+
+		<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate %>
+
+			<%text%>			t_preparedStatement.setDate(++t_index, java.sql.Date.valueOf(p_<%firstLetterToLowerCase value = <%name%>%>));
+<%endtext%>
+
+		<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime %>
+
+			<%text%>			t_preparedStatement.setTime(++t_index, Time.valueOf(p_<%firstLetterToLowerCase value = <%name%>%>));
+<%endtext%>
+
+		<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[]%>
+
+			<%text%>
+			ByteArrayInputStream t_imageStream	= new ByteArrayInputStream(p_<%firstLetterToLowerCase value = <%name%>%>);
+			t_preparedStatement.setBinaryStream(++t_index, t_imageStream, p_<%firstLetterToLowerCase value = <%name%>%>.length);
+<%endtext%>
+
+		<%else%>
+
+			<%text%>			t_preparedStatement.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "prepStmntSetFunc" %>(++t_index, p_<%firstLetterToLowerCase value = <%name%>%>);
+<%endtext%>
+
+		<%endif%>
+
+	<%endif%>
+
+<%endfor%>
+
+
+<%text%>
+			LinkedList<<%className%>> t_results = Load<%className%>WithSQL(t_preparedStatement, p_dbConnection);
+			if (t_results == null) {
+				Logger.LogError("This is the SQL that failed: " + t_sql);
+				return null;
+			}
+
+			return (!t_results.isEmpty()) ? t_results.getFirst() : null;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_DB.Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>() failed with error: ", t_error);
+			Logger.LogError("This is the SQL that failed: " + t_sql);
+			return null;
+		}
+		finally {
+			if (t_preparedStatement != null)
+				try { t_preparedStatement.close(); } catch (Throwable t_dontCare) {}
+		}
+	}<%endtext%>
+
+
+
+<%foreach node=column%>
+
+	<%foreach node=foreignKey%>
+
+		<%text%>
+
+
+	//*********************************
+	@Override
+	public LinkedList<<%^^className%>> LoadAll<%^^className%>For<%^name%>(<%variable name = "foreignKeyDBParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%^name%>%>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+
+			return LoadAll<%^^className%>For<%^name%>(p_<%firstLetterToLowerCase value = <%^name%>%>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%^^className%>DAO_DB.LoadAll<%^^className%>For<%^name%>(String) failed with error: ", t_error);
+			return null;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	/**
+	* This version of the function should only be used if it is being included in an external transaction where the passed in connection has its setAutoCommit() is set to FALSE;
+	*
+	*/
+	@Override
+	public LinkedList<<%^^className%>> LoadAll<%^^className%>For<%^name%>(<%variable name = "foreignKeyDBParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%^name%>%>, ConnectionProxy p_dbConnection)
+	{
+		StringBuilder t_sql = new StringBuilder();
+		t_sql.append("SELECT " + <%^^className%>.GetColumnList());
+		t_sql.append(" FROM <%^^sqlName%> ");
+		t_sql.append(" WHERE <%^sqlName%> = ?;");
+
+		PreparedStatement t_preparedStatement = null;
+		try {
+			t_preparedStatement = p_dbConnection.prepareStatement(t_sql.toString());
+			if (t_preparedStatement == null) {
+				Logger.LogError("<%^^className%>DAO_DB.LoadAll<%^^className%>For<%^name%>() failed to get a prepared statement for [" + p_dbConnection.GetConnectionID() + "].");
+				return null;
+			}
+<%endtext%>
+
+		<%if <%or <%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %> = LocalDateTime
+				  <%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %> = ZonedDateTime %> = true %>
+
+			<%text%>			t_preparedStatement.setTimestamp(1, Timestamp.valueOf(p_<%firstLetterToLowerCase value = <%name%>%>.Get<%name%>()));
+<%endtext%>
+
+		<%elseif <%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %> = LocalDate %>
+
+			<%text%>			t_preparedStatement.setDate(1, java.sql.Date.valueOf(p_<%firstLetterToLowerCase value = <%name%>%>.Get<%name%>()));
+<%endtext%>
+
+		<%elseif <%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %> = LocalTime %>
+
+			<%text%>			t_preparedStatement.setTime(1, Time.valueOf(p_<%firstLetterToLowerCase value = <%name%>%>.Get<%name%>()));
+<%endtext%>
+
+		<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %> = byte[]%>
+
+			<%text%>
+			ByteArrayInputStream t_imageStream	= new ByteArrayInputStream(p_<%firstLetterToLowerCase value = <%^name%>%>);
+			t_preparedStatement.setBinaryStream(1, t_imageStream, p_<%firstLetterToLowerCase value = <%^name%>%>.length);
+<%endtext%>
+
+		<%else%>
+
+			<%text%>			t_preparedStatement.<%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "prepStmntSetFunc" %>(1, p_<%firstLetterToLowerCase value = <%^name%>%>);
+<%endtext%>
+
+		<%endif%>
+
+		<%text%>
+			LinkedList<<%^^className%>> t_results = Load<%^^className%>WithSQL(t_preparedStatement, p_dbConnection);
+			if (t_results == null) {
+				Logger.LogError("This is the SQL that failed: " + t_sql);
+				return null;
+			}
+
+			return t_results;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%^^className%>DAO_DB.LoadAll<%^^className%>For<%^name%>() failed with error: ", t_error);
+			Logger.LogError("This is the SQL that failed: " + t_sql);
+			return null;
+		}
+		finally {
+			if (t_preparedStatement != null)
+				try { t_preparedStatement.close(); } catch (Throwable t_dontCare) {}
+		}
+	}<%endtext%>
+
+	<%endfor%>
+
+<%endfor%>
+
+
+
+<%foreach node=tableRelationship%>
+	<%text%>
+
+
+	//*********************************
+	@Override
+	public LinkedList<<%^^className%>> LoadAll<%^className%>For<%parentColumnName%>Vector(<%variable name = "dbParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%parentColumnName%>%>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+
+			return LoadAll<%^className%>For<%parentColumnName%>Vector(p_<%firstLetterToLowerCase value = <%parentColumnName%>%>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%^className%>DAO_DB.LoadAll<%^className%>For<%parentColumnName%>Vector(String) failed with error: ", t_error);
+			return null;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	/**
+	* This version of the function should only be used if it is being included in an external transaction where the passed in connection has its setAutoCommit() is set to FALSE;
+	*
+	*/
+	@Override
+	public LinkedList<<%^className%>> LoadAll<%^className%>For<%parentColumnName%>Vector(<%variable name = "dbParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%parentColumnName%>%>, ConnectionProxy p_dbConnection)
+	{
+		StringBuilder t_sql = new StringBuilder();
+		t_sql.append("SELECT " + <%^className%>.GetColumnList());
+		t_sql.append(" FROM <%^sqlName%> ");
+		t_sql.append(" WHERE <%childKeyColumnName%> IN (SELECT v.child_id");
+		t_sql.append(				 		" FROM  VECTORS v");
+		t_sql.append(				 			" INNER JOIN VECTOR_TABLE_L vtl_parent ON vtl_parent.VECTOR_TABLE_ID = v.PARENT_TABLE_ID AND vtl_parent.TABLE_NAME = '<%parentTableName%>'");
+		t_sql.append(				 			" INNER JOIN VECTOR_TABLE_L vtl_child  ON vtl_child.VECTOR_TABLE_ID  = v.CHILD_TABLE_ID AND vtl_child.TABLE_NAME = '<%^sqlName%>'");
+		t_sql.append(				 		" WHERE v.PARENT_ID = ?);");
+
+		PreparedStatement t_preparedStatement = null;
+		try {
+			t_preparedStatement = p_dbConnection.prepareStatement(t_sql.toString());
+			if (t_preparedStatement == null) {
+				Logger.LogError("<%^className%>DAO_DB.LoadAll<%^className%>For<%parentColumnName%>Vector() failed to get a prepared statement for [" + p_dbConnection.GetConnectionID() + "].");
+				return null;
+			}
+<%endtext%>
+
+		<%if <%or <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+				  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime %> = true %>
+
+			<%text%>			t_preparedStatement.setTimestamp(1, Timestamp.valueOf(p_<%firstLetterToLowerCase value = <%parentColumnName%>%>.Get<%name%>()));
+<%endtext%>
+
+		<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate %>
+
+			<%text%>			t_preparedStatement.setDate(1, java.sql.Date.valueOf(p_<%firstLetterToLowerCase value = <%parentColumnName%>%>.Get<%name%>()));
+<%endtext%>
+
+		<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime %>
+
+			<%text%>			t_preparedStatement.setTime(1, Time.valueOf(p_<%firstLetterToLowerCase value = <%parentColumnName%>%>.Get<%name%>()));
+<%endtext%>
+
+	<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[]%>
+
+		<%text%>
+			ByteArrayInputStream t_imageStream	= new ByteArrayInputStream(p_<%firstLetterToLowerCase value = <%parentColumnName%>%>);
+			t_preparedStatement.setBinaryStream(1, t_imageStream, p_<%firstLetterToLowerCase value = <%parentColumnName%>%>.length);
+<%endtext%>
+
+	<%else%>
+
+		<%text%>			t_preparedStatement.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "prepStmntSetFunc" %>(1, p_<%firstLetterToLowerCase value = <%parentColumnName%>%>);
+<%endtext%>
+
+	<%endif%>
+
+<%text%>
+			LinkedList<<%^className%>> t_results = Load<%^className%>WithSQL(t_preparedStatement, p_dbConnection);
+			if (t_results == null) {
+				Logger.LogError("This is the SQL that failed: " + t_sql);
+				return null;
+			}
+
+			<%customCode key="LoadAll<%^className%>For<%parentColumnName%>VectorCustomCode" openingCommentCharacters="//"%>
+
+
+			return t_results;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%^className%>DAO_DB.LoadAll<%^className%>For<%parentColumnName%>Vector() failed with error: ", t_error);
+			Logger.LogError("This is the SQL that failed: " + t_sql);
+			return null;
+		}
+		finally {
+			if (t_preparedStatement != null)
+				try { t_preparedStatement.close(); } catch (Throwable t_dontCare) {}
+		}
+	}<%endtext%>
+
+<%endfor%>
+
+
+
+<%text%>
+
+
+	<%customCode key=<%className%>CustomLoaders openingCommentCharacters="//"%>
+
+
+	//*********************************
+	@Override
+	public LinkedList<<%className%>> Load<%className%>WithSQL(PreparedStatement p_preparedStatement, ConnectionProxy p_dbConnection)
+	{
+		LinkedList<<%className%>> t_new<%className%>List = new LinkedList<<%className%>>();
+		<%className%> t_new<%className%> = null;
+
+		try {
+			ResultSet		t_result = p_preparedStatement.executeQuery();
+			int				t_index;
+			java.sql.Date	t_dbDate;
+			Time			t_dbTime;
+			Timestamp		t_dbTimestamp;
+
+			while (t_result.next()) {
+				t_index 	= 0;
+				t_new<%className%> 	= new <%className%>();
+
+<%endtext%>
+
+<%foreach node=column%>
+
+	<%if <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime %>
+
+		<%if <%isNullable%> = true%>
+
+			<%text%>
+				t_dbTimestamp = t_result.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "resultSetGetFunc" %>(++t_index);
+				if (t_dbTimestamp == null)
+					t_new<%^className%>.Set<%name%>(null);
+				else
+					t_new<%^className%>.Set<%name%>(t_dbTimestamp.toLocalDateTime());
+
+<%endtext%>
+
+		<%else%>
+
+			<%text%>				t_new<%^className%>.Set<%name%>(t_result.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "resultSetGetFunc" %>(++t_index).toLocalDateTime());
+<%endtext%>
+
+		<%endif%>
+
+	<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime %>
+
+		<%if <%isNullable%> = true%>
+
+			<%text%>
+				t_dbTimestamp = t_result.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "resultSetGetFunc" %>(++t_index);
+				if (t_dbTimestamp == null)
+					t_new<%^className%>.Set<%name%>(null);
+				else
+					t_new<%^className%>.Set<%name%>(t_dbTimestamp.toLocalDateTime());
+
+<%endtext%>
+
+		<%else%>
+
+			<%text%>				t_new<%^className%>.Set<%name%>(t_result.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "resultSetGetFunc" %>(++t_index).toLocalDateTime());
+<%endtext%>
+
+		<%endif%>
+
+	<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate %>
+
+		<%if <%isNullable%> = true%>
+
+			<%text%>
+				t_dbDate = t_result.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "resultSetGetFunc" %>(++t_index);
+				if (t_dbDate == null)
+					t_new<%^className%>.Set<%name%>(null);
+				else
+					t_new<%^className%>.Set<%name%>(t_dbDate.toLocalDate());
+
+<%endtext%>
+
+		<%else%>
+
+			<%text%>				t_new<%^className%>.Set<%name%>(t_result.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "resultSetGetFunc" %>(++t_index).toLocalDate());
+<%endtext%>
+
+		<%endif%>
+
+	<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime %>
+
+		<%if <%isNullable%> = true%>
+
+			<%text%>
+				t_dbTime = t_result.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "resultSetGetFunc" %>(++t_index);
+				if (t_dbTime == null)
+					t_new<%^className%>.Set<%name%>(null);
+				else
+					t_new<%^className%>.Set<%name%>(t_dbTime.toLocalTime());
+
+<%endtext%>
+
+		<%else%>
+
+			<%text%>				t_new<%^className%>.Set<%name%>(t_result.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "resultSetGetFunc" %>(++t_index).toLocalTime());
+<%endtext%>
+
+		<%endif%>
+
+	<%else%>
+
+		<%text%>				t_new<%^className%>.Set<%name%>(t_result.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "resultSetGetFunc" %>(++t_index));
+<%endtext%>
+
+		<%if <%isNullable%> = true%>
+
+			<%text%>				if (t_result.wasNull())
+					t_new<%^className%>.Set<%name%>(null);
+
+<%endtext%>
+
+		<%endif%>
+
+	<%endif%>
+
+<%endfor%>
+
+<%text%>
+				t_new<%className%>List.add(t_new<%className%>);
+			}
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_DB.Load<%className%>WithSQL() failed with an exception : ", t_error);
+			return null;
+		}
+
+		return t_new<%className%>List;
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Create<%className%>(<%className%> p_new<%className%>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+
+			return Create<%className%>(p_new<%className%>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_DB.Create<%className%>(String) failed with error: ", t_error);
+			return false;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	/**
+	* This version of the function should only be used if it is being included in an external transaction where the passed in connection has its setAutoCommit() set to FALSE;
+	*
+	*/
+	@Override
+	public boolean Create<%className%>(<%className%> p_new<%className%>, ConnectionProxy p_dbConnection)
+	{
+		StringBuilder		t_sql				= new StringBuilder();
+		PreparedStatement	t_preparedStatement = null;
+		try {
+			if (!p_new<%className%>.ValidateBeforeSave())
+				return false;
+
+
+			<%customCode key="Create<%className%>PreCreate" openingCommentCharacters="//"%>
+
+<%endtext%>
+
+
+<%foreach node=column%>
+	<%first%>
+		<%if <%and <%isPrimaryKey%>		= true
+					 exists				= isKeyGenerated
+					 <%isKeyGenerated%> = true				%> = true %>
+			<%text%>
+			long t_nextID = DBConnectionManager.GetIDs(p_dbConnection, "<%^sqlName%>", 1);
+			if (t_nextID == -1) {
+				Logger.LogError("<%^className%>DAO_DB.Create<%^className%>() failed to get a new ID.");
+				return false;
+			}
+<%endtext%>
+
+		<%endif%>
+	<%endfirst%>
+<%endfor%>
+
+<%text%>
+			t_sql.append("INSERT INTO <%sqlName%> (" + <%className%>.GetColumnList() + ") VALUES (<%endtext%>
+
+<%foreach node=column%>
+	<%first%><%text%>?<%endtext%>
+	<%else%><%text%>, ?<%endtext%>
+	<%endfirst%>
+<%endfor%>
+
+<%text%>);");
+
+			t_preparedStatement = p_dbConnection.prepareStatement(t_sql.toString());
+			if (t_preparedStatement == null) {
+				Logger.LogError("<%className%>DAO_DB.Create<%className%>() failed to get a prepared statement for [" + p_dbConnection.GetConnectionID() + "].");
+				return false;
+			}
+
+			int t_index = 0;
+<%endtext%>
+
+<%foreach node=column%>
+
+	<%if <%isNullable%> = true%>
+
+		<%text%>
+			if (p_new<%^className%>.Get<%name%>() == null)
+				t_preparedStatement.setNull(++t_index, Types.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "prepStmntSetNullConst" %>);
+			else
+	<%endtext%>
+
+	<%endif%>
+
+
+	<%if <%or <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+			  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime %> = true %>
+
+		<%text%>			t_preparedStatement.setTimestamp(++t_index, Timestamp.valueOf(p_new<%^className%>.Get<%name%>()));
+<%endtext%>
+
+	<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate %>
+
+		<%text%>			t_preparedStatement.setDate(++t_index, java.sql.Date.valueOf(p_new<%^className%>.Get<%name%>()));
+<%endtext%>
+
+	<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime %>
+
+		<%text%>			t_preparedStatement.setTime(++t_index, Time.valueOf(p_new<%^className%>.Get<%name%>()));
+<%endtext%>
+
+	<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[]%>
+
+		<%text%>			{	// I had to put these two lines in a block just in case this was a nullable field and the generator put and if-else above them.
+				ByteArrayInputStream t_imageStream	= new ByteArrayInputStream(p_new<%^className%>.Get<%name%>());
+				t_preparedStatement.setBinaryStream(++t_index, t_imageStream, p_new<%^className%>.Get<%name%>().length);
+			}
+<%endtext%>
+
+	<%else%>
+
+		<%if <%and <%isPrimaryKey%>		= true
+					 exists				= isKeyGenerated
+					 <%isKeyGenerated%> = true				%> = true %>
+			<%text%>			t_preparedStatement.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "prepStmntSetFunc" %>(++t_index, (<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "builtin" %>)t_nextID);
+<%endtext%>
+		<%else%>
+			<%text%>			t_preparedStatement.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "prepStmntSetFunc" %>(++t_index, p_new<%^className%>.Get<%name%>());
+<%endtext%>
+		<%endif%>
+
+	<%endif%>
+<%endfor%>
+
+<%text%>
+			if (t_preparedStatement.executeUpdate() <= 0) {
+				Logger.LogError("<%className%>DAO_DB.Create<%className%>() failed to execute the insert SQL: " + t_sql + "\nFor object: " + p_new<%className%>.toString());
+				return false;
+			}
+<%endtext%>
+
+<%foreach node=column%>
+	<%if <%and <%isPrimaryKey%>		= true
+					exists				= isKeyGenerated
+					<%isKeyGenerated%> = true				%> = true %>
+		<%text%>
+			p_new<%^className%>.Set<%name%>((<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "builtin" %>)t_nextID);
+<%endtext%>
+	<%endif%>
+<%endfor%>
+
+<%text%>
+
+		<%customCode key="Create<%className%>PostCreate" openingCommentCharacters="//"%>
+
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_DB.Create<%className%>() failed with error: ", t_error);
+			Logger.LogError("The SQL that failed: " + t_sql + "\nFor object: " + p_new<%className%>.toString());
+			return false;
+		}
+		finally {
+			if (t_preparedStatement != null)
+				try { t_preparedStatement.close(); } catch (Throwable t_dontCare) {}
+		}
+
+		return true;
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Update<%className%>(<%className%> p_target<%className%>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+
+			return Update<%className%>(p_target<%className%>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_DB.Update<%className%>(String) failed with error: ", t_error);
+			return false;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	/**
+	* This version of the function should only be used if it is being included in an external transaction where the passed in connection has its setAutoCommit() is set to FALSE;
+	*
+	*/
+	@Override
+	public boolean Update<%className%>(<%className%> p_target<%className%>, ConnectionProxy p_dbConnection)
+	{
+		StringBuilder		t_sql				= new StringBuilder();
+		PreparedStatement	t_preparedStatement = null;
+		try {
+			if (!p_target<%className%>.ValidateBeforeSave())
+				return false;
+
+
+			<%customCode key="Update<%className%>PreUpdate" openingCommentCharacters="//"%>
+
+
+			t_sql.append("UPDATE <%sqlName%> SET");
+<%endtext%>
+
+<%foreach node=column%>
+
+	<%if <%isPrimaryKey%> = false%>
+		<%first%>
+			<%text%>			t_sql.append(" <%sqlName%> = ?");
+<%endtext%>
+		<%else%>
+			<%text%>			t_sql.append(", <%sqlName%> = ?");
+<%endtext%>
+		<%endfirst%>
+
+	<%endif%>
+<%endfor%>
+
+<%text%>
+			t_sql.append(" WHERE");
+<%endtext%>
+
+<%foreach node=column%>
+	<%if <%isPrimaryKey%> = true%>
+		<%first%>
+			<%text%>			t_sql.append(" <%sqlName%> = ?");
+<%endtext%>
+		<%else%>
+			<%text%>			t_sql.append(" AND <%sqlName%> = ?");
+<%endtext%>
+		<%endfirst%>
+	<%endif%>
+<%endfor%>
+
+<%text%>			t_sql.append(";");
+
+
+			t_preparedStatement = p_dbConnection.prepareStatement(t_sql.toString());
+			if (t_preparedStatement == null) {
+				Logger.LogError("<%className%>DAO_DB.Update<%className%>() failed to get a prepared statement for [" + p_dbConnection.GetConnectionID() + "].");
+				return false;
+			}
+
+			int t_index = 0;
+<%endtext%>
+
+<%foreach node=column%>
+	<%if <%isPrimaryKey%> = false%>
+		<%if <%isNullable%> = true%>
+			<%text%>
+			if (p_target<%^className%>.Get<%name%>() == null)
+				t_preparedStatement.setNull(++t_index, Types.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "prepStmntSetNullConst" %>);
+			else
+	<%endtext%>
+		<%endif%>
+
+		<%if <%or <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+				  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime %> = true %>
+
+			<%text%>			t_preparedStatement.setTimestamp(++t_index, Timestamp.valueOf(p_target<%^className%>.Get<%name%>()));
+<%endtext%>
+
+		<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate %>
+
+			<%text%>			t_preparedStatement.setDate(++t_index, java.sql.Date.valueOf(p_target<%^className%>.Get<%name%>()));
+<%endtext%>
+
+		<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime %>
+
+			<%text%>			t_preparedStatement.setTime(++t_index, Time.valueOf(p_target<%^className%>.Get<%name%>()));
+<%endtext%>
+
+		<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[]%>
+			<%text%>			{	// I had to put these two lines in a block just in case this was a nullable field and the generator put and if-else above them.
+				ByteArrayInputStream t_imageStream	= new ByteArrayInputStream(p_target<%^className%>.Get<%name%>());
+				t_preparedStatement.setBinaryStream(++t_index, t_imageStream, p_target<%^className%>.Get<%name%>().length);
+			}
+<%endtext%>
+		<%else%>
+
+			<%text%>			t_preparedStatement.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "prepStmntSetFunc" %>(++t_index, p_target<%^className%>.Get<%name%>());
+<%endtext%>
+
+		<%endif%>
+
+		<%if <%isNullable%> = true%>
+			<%text%>
+<%endtext%>
+		<%endif%>
+
+	<%endif%>
+<%endfor%>
+
+<%text%>
+			// Set the primary key(s).
+<%endtext%>
+
+<%foreach node=column%>
+	<%if <%isPrimaryKey%> = true%>
+
+		<%if <%or <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+				  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime %> = true %>
+
+			<%text%>			t_preparedStatement.setTimestamp(++t_index, Timestamp.valueOf(p_target<%^className%>.Get<%name%>()));
+<%endtext%>
+
+		<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate %>
+
+			<%text%>			t_preparedStatement.setDate(++t_index, java.sql.Date.valueOf(p_target<%^className%>.Get<%name%>()));
+<%endtext%>
+
+		<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime %>
+
+			<%text%>			t_preparedStatement.setTime(++t_index, Time.valueOf(p_target<%^className%>.Get<%name%>()));
+<%endtext%>
+
+		<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[]%>
+
+			<%text%>			{	// I had to put these two lines in a block just in case this was a nullable field and the generator put and if-else above them.
+				ByteArrayInputStream t_imageStream	= new ByteArrayInputStream(p_target<%^className%>.Get<%name%>());
+				t_preparedStatement.setBinaryStream(++t_index, t_imageStream, p_target<%^className%>.Get<%name%>().length);
+			}
+<%endtext%>
+
+		<%else%>
+
+			<%text%>			t_preparedStatement.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "prepStmntSetFunc" %>(++t_index, p_target<%^className%>.Get<%name%>());
+<%endtext%>
+
+		<%endif%>
+	<%endif%>
+<%endfor%>
+
+<%text%>
+			if (t_preparedStatement.executeUpdate() <= 0) {
+				Logger.LogError("<%className%>DAO_DB.Update<%className%>() failed to execute the update SQL: " + t_sql + "\nFor object: " + p_target<%className%>.toString());
+				return false;
+			}
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_DB.Update<%className%>() failed with error: ", t_error);
+			Logger.LogError("The SQL that failed: " + t_sql + "\nFor object: " + p_target<%className%>.toString());
+			return false;
+		}
+		finally {
+			if (t_preparedStatement != null)
+				try { t_preparedStatement.close(); } catch (Throwable t_dontCare) {}
+		}
+
+		return true;
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Delete<%className%>ForID(<%variable name = "dbPrimaryKeyParameters" evalmode = "evaluate" %>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+
+			return Delete<%className%>ForID(<%variable name = "dbPrimaryKeyForwardParameters" evalmode = "evaluate" %>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_DB.Delete<%className%>ForID(String) failed with error: ", t_error);
+			return false;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	/**
+	* This version of the function should only be used if it is being included in an external transaction where the passed in connection has its setAutoCommit() is set to FALSE;
+	*
+	*/
+	@Override
+	public boolean Delete<%className%>ForID(<%variable name = "dbPrimaryKeyParameters" evalmode = "evaluate" %>, ConnectionProxy p_dbConnection)
+	{
+		StringBuilder		t_sql				= new StringBuilder();
+		PreparedStatement	t_preparedStatement = null;
+
+		try {
+
+			<%customCode key="Delete<%className%>ForIDPreDelete" openingCommentCharacters="//"%>
+
+
+			t_sql.append("DELETE FROM <%sqlName%> WHERE");
+<%endtext%>
+
+<%foreach node=column%>
+
+	<%if <%isPrimaryKey%> = true%>
+
+		<%first%>
+			<%text%>			t_sql.append(" <%sqlName%> = ?");
+<%endtext%>
+		<%else%>
+			<%text%>			t_sql.append(" AND <%sqlName%> = ?");
+<%endtext%>
+		<%endfirst%>
+
+	<%endif%>
+
+<%endfor%>
+
+
+<%text%>			t_sql.append(";");
+
+
+			t_preparedStatement = p_dbConnection.prepareStatement(t_sql.toString());
+			if (t_preparedStatement == null) {
+				Logger.LogError("<%className%>DAO_DB.Delete<%className%>ForID() failed to get a prepared statement for [" + p_dbConnection.GetConnectionID() + "].");
+				return false;
+			}
+
+			int t_index = 0;
+<%endtext%>
+
+<%foreach node=column%>
+	<%if <%isPrimaryKey%> = true%>
+
+		<%if <%or <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+				  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime %> = true %>
+
+			<%text%>			t_preparedStatement.setTimestamp(++t_index, Timestamp.valueOf(p_<%firstLetterToLowerCase value = <%name%>%>));
+<%endtext%>
+
+		<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate %>
+
+			<%text%>			t_preparedStatement.setDate(++t_index, java.sql.Date.valueOf(p_<%firstLetterToLowerCase value = <%name%>%>));
+<%endtext%>
+
+		<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime %>
+
+			<%text%>			t_preparedStatement.setTime(++t_index, Time.valueOf(p_<%firstLetterToLowerCase value = <%name%>%>));
+<%endtext%>
+
+		<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[]%>
+
+			<%text%>			{	// I had to put these two lines in a block just in case this was a nullable field and the generator put and if-else above them.
+				ByteArrayInputStream t_imageStream	= new ByteArrayInputStream(p_<%firstLetterToLowerCase value = <%name%>%>);
+				t_preparedStatement.setBinaryStream(++t_index, t_imageStream, p_<%firstLetterToLowerCase value = <%name%>%>.length);
+			}
+<%endtext%>
+
+		<%else%>
+
+			<%text%>			t_preparedStatement.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "prepStmntSetFunc" %>(++t_index, p_<%firstLetterToLowerCase value = <%name%>%>);
+<%endtext%>
+
+		<%endif%>
+	<%endif%>
+<%endfor%>
+
+<%text%>
+			t_preparedStatement.executeUpdate();
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_DB.Delete<%className%>ForID() failed with error: ", t_error);
+			Logger.LogError("The SQL that failed: " + t_sql);
+			return false;
+		}
+		finally {
+			if (t_preparedStatement != null)
+				try { t_preparedStatement.close(); } catch (Throwable t_dontCare) {}
+		}
+
+		return true;
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Delete<%className%>(<%className%> p_target<%className%>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+
+			return Delete<%className%>(p_target<%className%>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_DB.Delete<%className%>(String) failed with error: ", t_error);
+			return false;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	/**
+	* This version of the function should only be used if it is being included in an external transaction where the passed in connection has its setAutoCommit() is set to FALSE;
+	*
+	*/
+	@Override
+	public boolean Delete<%className%>(<%className%> p_target<%className%>, ConnectionProxy p_dbConnection)
+	{
+		StringBuilder		t_sql				= new StringBuilder();
+		PreparedStatement	t_preparedStatement = null;
+
+		try {
+
+			<%customCode key="Delete<%className%>PreDelete" openingCommentCharacters="//"%>
+
+
+			t_sql.append("DELETE FROM <%sqlName%> WHERE");
+<%endtext%>
+
+<%foreach node=column%>
+	<%if <%isPrimaryKey%> = true%>
+		<%first%>
+			<%text%>			t_sql.append(" <%sqlName%> = ?");
+<%endtext%>
+		<%else%>
+			<%text%>			t_sql.append(" AND <%sqlName%> = ?");
+<%endtext%>
+		<%endfirst%>
+	<%endif%>
+<%endfor%>
+
+<%text%>			t_sql.append(";");
+
+
+			t_preparedStatement = p_dbConnection.prepareStatement(t_sql.toString());
+			if (t_preparedStatement == null) {
+				Logger.LogError("<%className%>DAO_DB.Delete<%className%>() failed to get a prepared statement for [" + p_dbConnection.GetConnectionID() + "].");
+				return false;
+			}
+
+			int t_index = 0;
+<%endtext%>
+
+<%foreach node=column%>
+	<%if <%isPrimaryKey%> = true%>
+
+		<%if <%or <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+				  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime %> = true %>
+
+			<%text%>			t_preparedStatement.setTimestamp(++t_index, Timestamp.valueOf(p_target<%^className%>.Get<%name%>()));
+<%endtext%>
+
+		<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate %>
+
+			<%text%>			t_preparedStatement.setDate(++t_index, java.sql.Date.valueOf(p_target<%^className%>.Get<%name%>()));
+<%endtext%>
+
+		<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime %>
+
+			<%text%>			t_preparedStatement.setTime(++t_index, Time.valueOf(p_target<%^className%>.Get<%name%>()));
+<%endtext%>
+
+		<%elseif <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[]%>
+
+			<%text%>			{	// I had to put these two lines in a block just in case this was a nullable field and the generator put and if-else above them.
+				ByteArrayInputStream t_imageStream	= new ByteArrayInputStream(p_target<%^className%>.Get<%name%>());
+				t_preparedStatement.setBinaryStream(++t_index, t_imageStream, p_target<%^className%>.Get<%name%>().length);
+			}
+<%endtext%>
+
+		<%else%>
+
+			<%text%>			t_preparedStatement.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "prepStmntSetFunc" %>(++t_index, p_target<%^className%>.Get<%name%>());
+<%endtext%>
+
+		<%endif%>
+	<%endif%>
+<%endfor%>
+
+<%text%>
+			t_preparedStatement.executeUpdate();
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_DB.Delete<%className%>() failed with error: ", t_error);
+			Logger.LogError("The SQL that failed: " + t_sql + "\nFor object: " + p_target<%className%>.toString());
+			return false;
+		}
+		finally {
+			if (t_preparedStatement != null)
+				try { t_preparedStatement.close(); } catch (Throwable t_dontCare) {}
+		}
+
+		return true;
+	}
+<%endtext%>
+
+
+
+
+<%foreach node=column%>
+
+	<%if exists=foreignKey%>
+
+		<%foreach node=foreignKey%>
+
+			<%text%>
+
+	//*********************************
+	@Override
+	public boolean Delete<%^^className%>For<%camelCase value = <%parentTableName%>%>ID(<%variable name = "foreignKeyDBParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%camelCase value = <%parentColumnName%>%>%>, ConnectionProxy p_dbConnection)
+	{
+		StringBuilder		t_sql				= new StringBuilder();
+		PreparedStatement	t_preparedStatement = null;
+
+		try {
+
+			<%customCode key="Delete<%^^className%>For<%camelCase value = <%parentTableName%>%>IDPreDelete" openingCommentCharacters="//"%>
+
+
+			t_sql.append("DELETE FROM <%^^sqlName%> WHERE <%^sqlName%> = ?;");
+
+
+			t_preparedStatement = p_dbConnection.prepareStatement(t_sql.toString());
+			if (t_preparedStatement == null) {
+				Logger.LogError("<%^^className%>DAO_DB.Delete<%^^className%>For<%camelCase value = <%parentTableName%>%>ID() failed to get a prepared statement for [" + p_dbConnection.GetConnectionID() + "].");
+				return false;
+			}
+
+			int t_index = 0;
+			t_preparedStatement.<%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "prepStmntSetFunc" %>(++t_index, p_<%firstLetterToLowerCase value = <%camelCase value = <%parentColumnName%>%>%>);
+			t_preparedStatement.executeUpdate();
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%^^className%>DAO_DB.Delete<%^^className%>For<%camelCase value = <%parentTableName%>%>ID() failed with error: ", t_error);
+			Logger.LogError("<%^^className%>DAO_DB.Delete<%^^className%>For<%camelCase value = <%parentTableName%>%>ID() SQL that failed for ID [" + p_<%firstLetterToLowerCase value = <%camelCase value = <%parentColumnName%>%>%> + "]:\n" + t_sql);
+			return false;
+		}
+		finally {
+			if (t_preparedStatement != null)
+				try { t_preparedStatement.close(); } catch (Throwable t_dontCare) {}
+		}
+
+		return true;
+	}
+<%endtext%>
+
+		<%endfor%>
+
+	<%endif%>
+
+<%endfor%>
+
+
+
+
+<%text%>
+
+
+	<%customCode key=<%className%>Miscellaneous openingCommentCharacters="//"%>
+}
+<%endtext%>

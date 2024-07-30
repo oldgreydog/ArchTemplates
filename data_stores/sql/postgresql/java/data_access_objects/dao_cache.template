@@ -1,0 +1,1185 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+<<< I moved the variable definitions to a separate file since they are almost all shared by all of the DAO templates. >>>
+<%include template=<%root.global.rootProjectTemplatePath%>/data_access_objects/dao_variables.template %>
+
+
+<%text%>/*
+ * This file was generated.
+ */
+
+package <%root.global.packageName%>.data_access_objects.cache;
+
+
+
+import java.sql.*;
+import java.util.*;
+
+import <%root.global.packageName%>.value_objects.*;
+import <%root.global.packageName%>.data_access_objects.*;
+import <%root.global.packageName%>.data_access_objects.db.*;
+import <%root.global.packageName%>.data_access_objects.factory.*;
+import coreutil.config.*;
+import coreutil.logging.*;
+import archtemputils.database.*;
+import archtemputils.database.DBConnectionManager.*;
+import archtemputils.network.*;
+
+<%customCode key="<%className%>Imports" openingCommentCharacters="//"%>
+
+
+
+public class <%className%>DAO_Cache extends CacheDAO implements <%className%>DAO {
+
+
+	<%customCode key=<%className%>CacheDataMembers openingCommentCharacters="//"%>
+
+
+	//*********************************
+	public <%className%>DAO_Cache() {
+		super("<%className%>DAO_Cache");
+	}
+
+
+	//*********************************
+	@Override
+	public boolean PreloadCache(ConnectionProxy p_dbConnection)
+	{
+		try {
+			m_readWriteLock.readLock().lock();
+
+			// To simplify the code, I put the all of the write locking code in LoadCache() so we just call it every time we are about to read from the cache and let it decide if we need to reload it.
+			if (!LoadCache(p_dbConnection)) {
+				Logger.LogError("<%className%>DAO_Cache.PreloadCache() failed to load the cache.");
+				return false;
+			}
+
+			return true;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_Cache.PreloadCache() failed with error: ", t_error);
+			return false;
+		}
+		finally {
+			m_readWriteLock.readLock().unlock();		// Finally, release the read lock.
+		}
+	}
+
+
+	//*********************************
+	private void AddToCaches(<%className%> p_new<%className%>) {
+		try {
+			<%customCode key=<%className%>AddToCaches openingCommentCharacters="//"%>
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_Cache.AddToCaches() failed with error: ", t_error);
+		}
+		finally {
+			<%customCode key=<%className%>AddToCachesFinally openingCommentCharacters="//"%>
+		}
+	}
+
+
+	//*********************************
+	private void DeleteFromCaches(<%className%> p_target<%className%>) {
+		try {
+			<%customCode key=<%className%>DeleteFromCaches openingCommentCharacters="//"%>
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_Cache.DeleteFromCaches() failed with error: ", t_error);
+			return;
+		}
+		finally {
+			<%customCode key=<%className%>DeleteFromCachesFinally openingCommentCharacters="//"%>
+		}
+	}
+
+
+
+
+	/**=================================
+	 * NOTE!!  You must already have the read lock before you call this!
+	 * @param p_dbConnection
+	 * @return
+	 */
+	protected boolean LoadCache(ConnectionProxy p_dbConnection)
+	{
+		// If this receives a NULL p_dbConnection, then the caller intends that we only use the objects in the cache instead of trying to update it.
+		if (p_dbConnection == null)
+			return true;
+
+		if (!m_cacheIsValid) {
+			try {
+				// Must release read lock before acquiring write lock
+				m_readWriteLock.readLock().unlock();
+				m_readWriteLock.writeLock().lock();
+
+				// Recheck state because another thread might have acquired
+				//   write lock and changed state before we did.
+				if (!m_cacheIsValid) {
+					<%customCode key=<%className%>LoadCacheClearCacheMaps openingCommentCharacters="//"%>
+
+					// Now that we are supporting Mysql, we have to dynamically alter the query to make it work in MS SQL and Mysql.
+					String t_dbURL = ConfigManager.GetStringValue("sqlDB." + p_dbConnection.GetConnectionID() + ".url");
+					String t_lockingAddon = "";
+					if (t_dbURL.toLowerCase().contains("sqlserver"))
+						t_lockingAddon = " WITH (NOLOCK)";
+
+					StringBuilder t_sql = new StringBuilder();
+					t_sql.append("SELECT " + <%className%>.GetColumnList());
+					t_sql.append(" FROM <%sqlName%>" + t_lockingAddon + ";");
+
+					// If a NULL was passed in for the db connection and we get here, then that means that this class has been accessed before it could be properly loaded and there is no db connection available from the caller's context, so we will get a temp connection here to get the cache loaded.
+					PreparedStatement t_preparedStatement = null;
+					try {
+						t_preparedStatement = p_dbConnection.prepareStatement(t_sql.toString());
+						if (t_preparedStatement == null) {
+							Logger.LogError("<%className%>DAO_Cache.LoadCache() failed to get a prepared statement for [" + p_dbConnection.GetConnectionID() + "].");
+							return false;
+						}
+
+						LinkedList<<%className%>> t_results = Load<%className%>WithSQL(t_preparedStatement, p_dbConnection);
+						if (t_results == null) {
+							Logger.LogError("This is the SQL that failed: " + t_sql);
+							return false;
+						}
+
+						// Put the <%className%>s in the cache map collection.
+						for (<%className%> t_next<%className%>: t_results) {
+							t_next<%className%>.IncrementVersionNumber();	// The default value when one of these VOs is created is 0, so if we always increment the version number whenever one is added to the cache, then we will know that if we see a version number of 0 anywhere then we are dealing directly with the DB and not a cached table.
+							AddToCaches(t_next<%className%>);
+						}
+					}
+					catch (Throwable t_error) {
+						Logger.LogException("<%className%>DAO_Cache.LoadCache() failed with error: ", t_error);
+						Logger.LogError("This is the SQL that failed: " + t_sql);
+						return false;
+					}
+					finally {
+						if (t_preparedStatement != null)
+							try { t_preparedStatement.close(); } catch (Throwable t_dontCare) {}
+					}
+
+					m_cacheIsValid = true;
+					Logger.LogDebug("<%className%> cache loaded.");
+				}
+			}
+			catch (Throwable t_error) {
+				Logger.LogException("<%className%>DAO_Cache.LoadCache() failed with error: ", t_error);
+				return false;
+			}
+			finally {
+				// Downgrade by acquiring read lock before releasing write lock
+				m_readWriteLock.readLock().lock();
+				m_readWriteLock.writeLock().unlock(); // Unlock write, still hold read
+			}
+		}
+
+		return true;
+	}
+
+
+	//*********************************
+	@Override
+	public LinkedList<<%className%>> LoadAll<%className%>(String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+			return LoadAll<%className%>(t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_Cache.LoadAll<%className%>(String) failed with error: ", t_error);
+			return null;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public LinkedList<<%className%>> LoadAll<%className%>(ConnectionProxy p_dbConnection)
+	{
+		try {
+			if (!p_dbConnection.getAutoCommit()) {
+				Logger.LogError("<%className%>DAO_Cache.LoadAll<%className%>() : cache DAOs are not built to work within DB transactions.  The results would be undefined.");
+				return null;
+			}
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_Cache.LoadAll<%className%>() getAutoCommit() failed with error: ", t_error);
+			return null;
+		}
+
+
+		try {
+			m_readWriteLock.readLock().lock();
+
+			// To simplify the code, I put the all of the write locking code in LoadCache() so we just call it every time we are about to read from the cache and let it decide if we need to reload it.
+			if (!LoadCache(p_dbConnection)) {
+				Logger.LogError("<%className%>DAO_Cache.LoadAll<%className%>() failed to load the cache.");
+				return null;
+			}
+
+			LinkedList<<%className%>> t_results = new LinkedList<<%className%>>();
+			<%customCode key="LoadAll<%className%>CacheCode" openingCommentCharacters="//"%>
+
+			return t_results;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_Cache.LoadAll<%className%>() failed with error: ", t_error);
+			return null;
+		}
+		finally {
+			m_readWriteLock.readLock().unlock();		// Finally, release the read lock.
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public <%className%> Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>(<%variable name = "dbPrimaryKeyParameters" evalmode = "evaluate" %>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+			return Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>(<%variable name = "dbPrimaryKeyForwardParameters" evalmode = "evaluate" %>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_Cache.Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>(String) failed with error: ", t_error);
+			return null;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public <%className%> Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>(<%variable name = "dbPrimaryKeyParameters" evalmode = "evaluate" %>, ConnectionProxy p_dbConnection)
+	{
+		try {
+			if (!p_dbConnection.getAutoCommit()) {
+				Logger.LogError("<%className%>DAO_Cache.Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>() : cache DAOs are not built to work within DB transactions.  The results would be undefined.");
+				return null;
+			}
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_Cache.Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>() getAutoCommit() failed with error: ", t_error);
+			return null;
+		}
+
+
+		try {
+			m_readWriteLock.readLock().lock();
+
+			// To simplify the code, I put the all of the write locking code in LoadCache() so we just call it every time we are about to read from the cache and let it decide if we need to reload it.
+			if (!LoadCache(p_dbConnection)) {
+				Logger.LogError("<%className%>DAO_Cache.Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>() failed to load the cache.");
+				return null;
+			}
+
+			<%className%> t_result = null;
+			<%customCode key="Load<%className%>ForPrimaryKeys" openingCommentCharacters="//"%>
+
+			return t_result;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_Cache.Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>() failed with error: ", t_error);
+			return null;
+		}
+		finally {
+			m_readWriteLock.readLock().unlock();		// Finally, release the read lock.
+		}
+	}<%endtext%>
+
+
+
+<%foreach node=column%>
+
+	<%foreach node=foreignKey%>
+
+		<%text%>
+
+
+	//*********************************
+	@Override
+	public LinkedList<<%^^className%>> LoadAll<%^^className%>For<%^name%>(<%variable name = "foreignKeyDBParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%^name%>%>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+			return LoadAll<%^^className%>For<%^name%>(p_<%firstLetterToLowerCase value = <%^name%>%>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%^^className%>DAO_Cache.LoadAll<%^^className%>For<%^name%>(String) failed with error: ", t_error);
+			return null;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public LinkedList<<%^^className%>> LoadAll<%^^className%>For<%^name%>(<%variable name = "foreignKeyDBParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%^name%>%>, ConnectionProxy p_dbConnection)
+	{
+		try {
+			if (!p_dbConnection.getAutoCommit()) {
+				Logger.LogError("<%^^className%>DAO_Cache.LoadAll<%^^className%>For<%^name%>() : cache DAOs are not built to work within DB transactions.  The results would be undefined.");
+				return null;
+			}
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%^^className%>DAO_Cache.LoadAll<%^^className%>For<%^name%>() getAutoCommit() failed with error: ", t_error);
+			return null;
+		}
+
+
+		try {
+			m_readWriteLock.readLock().lock();
+
+			// To simplify the code, I put the all of the write locking code in LoadCache() so we just call it every time we are about to read from the cache and let it decide if we need to reload it.
+			if (!LoadCache(p_dbConnection)) {
+				Logger.LogError("<%^^className%>DAO_Cache.LoadAll<%^^className%>For<%^name%>() failed to load the cache.");
+				return null;
+			}
+
+			LinkedList<<%^^className%>> t_results = new LinkedList<<%^^className%>>();
+			<%customCode key="LoadAll<%^^className%>For<%^name%>" openingCommentCharacters="//"%>
+
+			return t_results;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%^^className%>DAO_Cache.LoadAll<%^^className%>For<%^name%>() failed with error: ", t_error);
+			return null;
+		}
+		finally {
+			m_readWriteLock.readLock().unlock();		// Finally, release the read lock.
+		}
+	}<%endtext%>
+
+	<%endfor%>
+
+<%endfor%>
+
+
+
+<%foreach node=tableRelationship%>
+	<%text%>
+
+	//*********************************
+	@Override
+	public LinkedList<<%^className%>> LoadAll<%^className%>For<%parentColumnName%>Vector(<%variable name = "dbParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%parentColumnName%>%>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+			return LoadAll<%^className%>For<%parentColumnName%>Vector(p_<%firstLetterToLowerCase value = <%^name%>%>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%^className%>DAO_Cache.LoadAll<%^className%>For<%parentColumnName%>Vector(String) failed with error: ", t_error);
+			return null;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public LinkedList<<%^className%>> LoadAll<%^className%>For<%parentColumnName%>Vector(<%variable name = "dbParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%parentColumnName%>%>, ConnectionProxy p_dbConnection)
+	{
+		try {
+			if (!p_dbConnection.getAutoCommit()) {
+				Logger.LogError("<%className%>DAO_Cache.LoadAll<%^^className%>For<%^name%>() : cache DAOs are not built to work within DB transactions.  The results would be undefined.");
+				return null;
+			}
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_Cache.LoadAll<%^^className%>For<%^name%>() getAutoCommit() failed with error: ", t_error);
+			return null;
+		}
+
+		try {
+			m_readWriteLock.readLock().lock();
+
+			// To simplify the code, I put the all of the write locking code in LoadCache() so we just call it every time we are about to read from the cache and let it decide if we need to reload it.
+			if (!LoadCache(p_dbConnection)) {
+				Logger.LogError("<%^className%>DAO_Cache.LoadAll<%^className%>For<%parentColumnName%>Vector() failed to load the cache.");
+				return null;
+			}
+
+			LinkedList<<%^className%>> t_results = new LinkedList<<%^className%>>();
+			<%customCode key="LoadAll<%^className%>For<%parentColumnName%>Vector" openingCommentCharacters="//"%>
+
+			return t_results;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%^className%>DAO_Cache.LoadAll<%^className%>For<%parentColumnName%>Vector() failed with error: ", t_error);
+			return null;
+		}
+		finally {
+			m_readWriteLock.readLock().unlock();		// Finally, release the read lock.
+		}
+	}<%endtext%>
+<%endfor%>
+
+
+
+<%text%>
+
+
+	<%customCode key=<%className%>CustomLoaders openingCommentCharacters="//"%>
+
+
+	//*********************************
+	@Override
+	public LinkedList<<%className%>> Load<%className%>WithSQL(PreparedStatement p_preparedStatement, ConnectionProxy p_dbConnection)
+	{
+		try {
+			<%className%>DAO t_<%firstLetterToLowerCase value = <%className%>%>DAO = new <%className%>DAO_DB();
+			LinkedList<<%className%>> t_results = t_<%firstLetterToLowerCase value = <%className%>%>DAO.Load<%className%>WithSQL(p_preparedStatement, p_dbConnection);
+			if (t_results == null) {
+				Logger.LogError("<%className%>DAO_Cache.Load<%className%>WithSQL() - the call to <%className%>DAO.Load<%className%>WithSQL() failed.");
+				return null;
+			}
+
+			return t_results;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_Cache.Load<%className%>WithSQL() failed with error: ", t_error);
+			return null;
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Create<%className%>(<%className%> p_new<%className%>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+			return Create<%className%>(p_new<%className%>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_Cache.Create<%className%>(String) failed with error: ", t_error);
+			return false;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Create<%className%>(<%className%> p_new<%className%>, ConnectionProxy p_dbConnection)
+	{
+		try {
+			if (!p_dbConnection.getAutoCommit()) {
+				Logger.LogError("<%className%>DAO_Cache.Create<%className%>() : cache DAOs are not built to work within DB transactions.  The results would be undefined.");
+				return false;
+			}
+
+			<%customCode key="Create<%className%>PreCreate" openingCommentCharacters="//"%>
+
+<%endtext%>
+
+<%foreach node=column%>
+
+	<%if <%and <%isPrimaryKey%>				= true
+				exists						= isKeyGenerated
+				<%isKeyGenerated%>			= true
+				<%not exists=foreignKey%>	= true %> = true%>
+
+		<%first%>
+			<%text%>			if (p_new<%^className%>.Get<%name%>() != -1) {
+				Logger.LogError("<%^className%>DAO_Cache.Create<%^className%>() received a <%^className%> with a primary key ID of [" + p_new<%^className%>.Get<%name%>() + "] != -1.  That means this is not a new record.");
+				return false;
+			}
+
+<%endtext%>
+
+		<%else%>
+		<%endfirst%>
+
+	<%endif%>
+
+<%endfor%>
+
+<%text%>			<%className%>DAO_DB t_<%firstLetterToLowerCase value = <%className%>%>DAO = new <%className%>DAO_DB();
+			if (!t_<%firstLetterToLowerCase value = <%className%>%>DAO.Create<%className%>(p_new<%className%>, p_dbConnection)) {
+				Logger.LogError("<%className%>DAO_Cache.Create<%className%>() failed to create the new <%className%> in the database.");
+				return false;
+			}
+
+			p_new<%className%>.IncrementVersionNumber();	// The default value when one of these VOs is created is 0, so if we always increment the version number whenever one is added to the cache, then we will know that if we see a version number of 0 anywhere then we are dealing directly with the DB and not a cached table.
+
+			// If the cache is invalid, we have already committed the insert to the db so all we have to do to get the new <%className%> into it is reload the cache.
+			if (!m_cacheIsValid) {
+				try {
+					m_readWriteLock.readLock().lock();	// You have to have a the read lock before you can enter LoadCache().
+					if (!LoadCache(p_dbConnection)) {
+						Logger.LogError("<%className%>DAO_Cache.Create<%className%>() failed to load the cache.");
+						return false;
+					}
+				}
+				finally {
+					m_readWriteLock.readLock().unlock();
+				}
+			}
+			else {	// Otherwise, we have to get the write lock on the cache before we can update it.
+				try {
+					m_readWriteLock.writeLock().lock();
+					AddToCaches(p_new<%className%>);
+				}
+				finally {
+					m_readWriteLock.writeLock().unlock(); // Unlock write, still hold read
+				}
+			}
+
+
+			<%customCode key="Create<%className%>PostCreate" openingCommentCharacters="//"%>
+
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_Cache.Create<%className%>() failed with error: ", t_error);
+			return false;
+		}
+
+		return true;
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Update<%className%>(<%className%> p_new<%className%>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+			return Update<%className%>(p_new<%className%>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_Cache.Update<%className%>(String) failed with error: ", t_error);
+			return false;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Update<%className%>(<%className%> p_target<%className%>, ConnectionProxy p_dbConnection)
+	{
+		try {
+			if (!p_dbConnection.getAutoCommit()) {
+				Logger.LogError("<%className%>DAO_Cache.Update<%className%>() : cache DAOs are not built to work within DB transactions.  The results would be undefined.");
+				return false;
+			}
+
+			<%className%> t_cached<%className%>	= Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>(<%endtext%>
+
+	<%foreach node=column%>
+
+		<%if <%isPrimaryKey%> = true%>
+
+			<%first%>
+			<%else%>
+				<%text%>, <%endtext%>
+			<%endfirst%>
+
+			<%text%>p_target<%^className%>.Get<%name%>()<%endtext%>
+
+		<%endif%>
+
+	<%endfor%>
+
+<%text%>, p_dbConnection);
+			if (t_cached<%className%> == null) {
+				Logger.LogWarning("<%className%>DAO_Cache.Update<%className%>() failed to find the target <%className%> object for <%className%>:\n" + p_target<%className%>.toString());
+				return false;
+			}
+
+
+			<%customCode key="Update<%className%>PreUpdate" openingCommentCharacters="//"%>
+
+
+			synchronized (t_cached<%className%>) {
+				if (t_cached<%className%>.GetVersionNumber() != p_target<%className%>.GetVersionNumber()) {
+					Logger.LogError("<%className%>DAO_Cache.Update<%className%>() has an object with version number [" + t_cached<%className%>.GetVersionNumber() + "] in the cache but the passed-in object has a version number of [" + p_target<%className%>.GetVersionNumber() + "].  The update cannot be done.");
+					return false;
+				}
+
+
+				<%className%>DAO_DB t_<%firstLetterToLowerCase value = <%className%>%>DAO = new <%className%>DAO_DB();
+				if (!t_<%firstLetterToLowerCase value = <%className%>%>DAO.Update<%className%>(p_target<%className%>, p_dbConnection)) {
+					Logger.LogError("<%className%>DAO_Cache.Update<%className%>() failed to update the <%className%> in the database.");
+					return false;
+				}
+
+				p_target<%className%>.IncrementVersionNumber();	// We've changed the object, so we have to update the version number.
+
+				// If the cache is invalid, we have already committed the insert to the db so all we have to do to get the new <%className%> into it is reload the cache.
+				if (!m_cacheIsValid) {
+					try {
+						m_readWriteLock.readLock().lock();	// You have to have a the read lock before you can enter LoadCache().
+						if (!LoadCache(p_dbConnection)) {
+							Logger.LogError("<%className%>DAO_Cache.Update<%className%>() failed to load the cache.");
+							return false;
+						}
+					}
+					finally {
+						m_readWriteLock.readLock().unlock();
+					}
+				}
+				else {	// Otherwise, we have to get the write lock on the cache before we can update it.
+					try {
+						m_readWriteLock.writeLock().lock();
+						DeleteFromCaches(t_cached<%className%>);
+						AddToCaches(p_target<%className%>);
+					}
+					finally {
+						m_readWriteLock.writeLock().unlock(); // Unlock write, still hold read
+					}
+				}
+			}	// End synchronized(t_cached<%className%>).
+
+
+			<%customCode key="Update<%className%>PostUpdate" openingCommentCharacters="//"%>
+
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_Cache.Update<%className%>() failed with error: ", t_error);
+			return false;
+		}
+
+		return true;
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Delete<%className%>ForID(<%variable name = "dbPrimaryKeyParameters" evalmode = "evaluate" %>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+			return Delete<%className%>ForID(<%variable name = "dbPrimaryKeyForwardParameters" evalmode = "evaluate" %>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_Cache.Delete<%className%>ForID(String) failed with error: ", t_error);
+			return false;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Delete<%className%>ForID(<%variable name = "dbPrimaryKeyParameters" evalmode = "evaluate" %>, ConnectionProxy p_dbConnection)
+	{
+		try {
+			if (!p_dbConnection.getAutoCommit()) {
+				Logger.LogError("<%className%>DAO_Cache.Delete<%className%>ForID() : cache DAOs are not built to work within DB transactions.  The results would be undefined.");
+				return false;
+			}
+
+			<%className%> t_target<%className%>	= Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>(<%variable name = "dbPrimaryKeyForwardParameters" evalmode = "evaluate" %>, p_dbConnection);
+			if (t_target<%className%> == null) {
+				Logger.LogWarning("<%className%>DAO_Cache.Delete<%className%>ForID() failed to find the target <%className%> object for specified keys.  We will assume that it has already been deleted.");
+				return true;
+			}
+
+
+			<%root.global.databaseName%>DAOFactory t_daoFactory = <%root.global.databaseName%>DAOFactory.GetFactoryInstance(p_dbConnection.GetConnectionID());
+			if (t_daoFactory == null) {
+				Logger.LogError("<%className%>DAO_Cache.Delete<%className%>ForID() failed to get a DAO factory for connection ID [" + p_dbConnection.GetConnectionID() + "].");
+				return false;
+			}
+
+			<%customCode key="Delete<%className%>ForIDPreDelete" openingCommentCharacters="//"%>
+
+
+			synchronized (t_target<%className%>) {
+<%endtext%>
+
+
+
+	<<< This section finds all foreign key references to this table and cleans them up. >>>
+	<%outerContext contextname = "parentTable" %>
+
+		<%foreach node = "^table"  optionalCounterName = "innerTable" %>
+
+			<%foreach node = column %>
+
+				<%foreach node = foreignKey %>
+
+					<%if <%parentTableName%> = <%outerContextEval contextname = "parentTable" targetvalue = sqlName %> %>
+
+						<%if <%parentTableName%> = <%^^sqlName%> %>
+
+							<%text%>				<%^^className%>DAO t_child<%^^className%>DAO = t_daoFactory.Get<%^^className%>DAO();
+				if (!t_child<%^^className%>DAO.Delete<%^^className%>For<%camelCase value = <%parentTableName%>%>ID(t_target<%outerContextEval contextname = "parentTable" targetvalue = className%>.<%variable name = "cachePrimaryKeyGetFunction" evalmode = "evaluate" optionalContextName = "parentTable" %>, p_dbConnection)) {
+					Logger.LogError("<%outerContextEval contextname = "parentTable" targetvalue = className%>DAO_Cache.Delete<%outerContextEval contextname = "parentTable" targetvalue = className%>ForID() failed to delete the child <%^^className%> from the database.");
+					return false;
+				}
+
+<%endtext%>
+
+						<%else%>
+
+							<%text%>				<%^^className%>DAO t_<%firstLetterToLowerCase value = <%^^className%>%>DAO = t_daoFactory.Get<%^^className%>DAO();
+				if (!t_<%firstLetterToLowerCase value = <%^^className%>%>DAO.Delete<%^^className%>For<%camelCase value = <%parentTableName%>%>ID(t_target<%outerContextEval contextname = "parentTable" targetvalue = className%>.<%variable name = "cachePrimaryKeyGetFunction" evalmode = "evaluate" optionalContextName = "parentTable" %>, p_dbConnection)) {
+					Logger.LogError("<%outerContextEval contextname = "parentTable" targetvalue = className%>DAO_Cache.Delete<%outerContextEval contextname = "parentTable" targetvalue = className%>ForID() failed to delete the <%^^className%> from the database.");
+					return false;
+				}
+
+<%endtext%>
+
+						<%endif%>
+
+					<%endif%>
+
+				<%endfor%>
+
+			<%endfor%>
+
+		<%endfor%>
+
+	<%endcontext%>
+
+
+	<<< This section will find the first indication that this table participates in vectors, either as a parent or child, and then call the special DeleteAllVectorsForID() function only once to clean up all of those vectors. >>>
+	<%if exists = tableRelationship %>
+
+		<%text%>				VectorsDAO t_vectorDAO = t_daoFactory.GetVectorsDAO();
+				if (t_vectorDAO == null) {
+					Logger.LogError("<%className%>DAO_Cache.Delete<%className%>ForID() failed to get a VectorsDAO instance.");
+					return false;
+				}
+
+				VectorTableLDAO t_vectorTableDAO = t_daoFactory.GetVectorTableLDAO();
+				if (t_vectorTableDAO == null) {
+					Logger.LogError("<%className%>DAO_Cache.Delete<%className%>ForID() failed to get a VectorTableLDAO instance.");
+					return false;
+				}
+
+				if (!t_vectorDAO.DeleteAllVectorsForID(t_vectorTableDAO.GetVectorTableID("<%sqlName%>", p_dbConnection),
+													   t_target<%className%>.<%variable name = "cachePrimaryKeyGetFunction" evalmode = "evaluate" %>,
+													   p_dbConnection))
+				{
+					Logger.LogError("<%className%>DAO_Cache.Delete<%className%>ForID() failed to delete all of the vectors for parent ID [" + t_target<%className%>.<%variable name = "cachePrimaryKeyGetFunction" evalmode = "evaluate" %> + "].");
+					return false;
+				}
+
+
+<%endtext%>
+
+	<%else%>
+
+		<%outerContext contextname = "parentTable" %>
+
+			<%foreach node = "^table"  optionalCounterName = "innerTable" %>
+
+				<%foreach node = "tableRelationship"%>
+
+					<%if <%parentTableName%> = <%outerContextEval contextname = "parentTable" targetvalue = sqlName %> %>
+
+						<%first  optionalCounterName = "innerTable" %>
+
+						<%text%>				VectorsDAO t_vectorDAO = t_daoFactory.GetVectorsDAO();
+				if (t_vectorDAO == null) {
+					Logger.LogError("<%outerContextEval contextname = "parentTable" targetvalue = className%>DAO_Cache.Delete<%outerContextEval contextname = "parentTable" targetvalue = className%>ForID() failed to get a VectorsDAO instance.");
+					return false;
+				}
+
+				VectorTableLDAO t_vectorTableDAO = t_daoFactory.GetVectorTableLDAO();
+				if (t_vectorTableDAO == null) {
+					Logger.LogError("<%outerContextEval contextname = "parentTable" targetvalue = className%>DAO_Cache.Delete<%outerContextEval contextname = "parentTable" targetvalue = className%>ForID() failed to get a VectorTableLDAO instance.");
+					return false;
+				}
+
+				if (!t_vectorDAO.DeleteAllVectorsForID(t_vectorTableDAO.GetVectorTableID("<%outerContextEval contextname = "parentTable" targetvalue = sqlName%>", p_dbConnection),
+													   t_target<%outerContextEval contextname = "parentTable" targetvalue = className%>.<%variable name = "cachePrimaryKeyGetFunction" evalmode = "evaluate" optionalContextName = "parentTable" %>,
+													   p_dbConnection))
+				{
+					Logger.LogError("<%outerContextEval contextname = "parentTable" targetvalue = className%>DAO_Cache.Delete<%outerContextEval contextname = "parentTable" targetvalue = className%>ForID() failed to delete all of the vectors for parent ID [" + t_target<%outerContextEval contextname = "parentTable" targetvalue = className%>.<%variable name = "cachePrimaryKeyGetFunction" evalmode = "evaluate" optionalContextName = "parentTable" %> + "].");
+					return false;
+				}
+
+<%endtext%>
+
+						<%endfirst%>
+
+					<%endif%>
+
+				<%endfor%>
+
+			<%endfor%>
+
+		<%endcontext%>
+
+	<%endif%>
+
+
+	<%text%>				<%className%>DAO_DB t_<%firstLetterToLowerCase value = <%className%>%>DAO = new <%className%>DAO_DB();
+				if (!t_<%firstLetterToLowerCase value = <%className%>%>DAO.Delete<%className%>ForID(<%variable name = "dbPrimaryKeyForwardParameters" evalmode = "evaluate" %>, p_dbConnection)) {
+					Logger.LogError("<%className%>DAO_Cache.Delete<%className%>ForID() failed to delete the <%className%> from the database.");
+					return false;
+				}
+
+
+				// If the cache is invalid, we have already committed the insert to the db so all we have to do to get the new <%className%> into it is reload the cache.
+				if (!m_cacheIsValid) {
+					try {
+						m_readWriteLock.readLock().lock();	// You have to have a the read lock before you can enter LoadCache().
+						if (!LoadCache(p_dbConnection)) {
+							Logger.LogError("<%className%>DAO_Cache.Delete<%className%>ForID() failed to load the cache.");
+							return false;
+						}
+					}
+					finally {
+						m_readWriteLock.readLock().unlock();
+					}
+				}
+				else {	// Otherwise, we have to get the write lock on the cache before we can update it.
+					try {
+						m_readWriteLock.writeLock().lock();
+						DeleteFromCaches(t_target<%className%>);
+					}
+					finally {
+						m_readWriteLock.writeLock().unlock(); // Unlock write, still hold read
+					}
+				}
+			}	// End synchronized(t_target<%className%>).
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_Cache.Delete<%className%>ForID() failed with error: ", t_error);
+			return false;
+		}
+
+		return true;
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Delete<%className%>(<%className%> p_target<%className%>, String p_dbConnectionID)
+	{
+		ConnectionProxy t_dbConnection = null;
+		try {
+			t_dbConnection = new ConnectionProxy(p_dbConnectionID);
+			return Delete<%className%>(p_target<%className%>, t_dbConnection);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_Cache.Delete<%className%>(String) failed with error: ", t_error);
+			return false;
+		}
+		finally {
+			if (t_dbConnection != null) {
+				t_dbConnection.ReleaseConnection();
+				t_dbConnection = null;
+			}
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public boolean Delete<%className%>(<%className%> p_target<%className%>, ConnectionProxy p_dbConnection)
+	{
+		try {
+			if (!p_dbConnection.getAutoCommit()) {
+				Logger.LogError("<%className%>DAO_Cache.Delete<%className%>() : cache DAOs are not built to work within DB transactions.  The results would be undefined.");
+				return false;
+			}
+
+			<%className%> t_target<%className%>	= Load<%className%>For<%variable name = "dbPrimaryKeyNames" evalmode = "evaluate" %>(<%endtext%>
+
+	<%foreach node=column%>
+
+		<%if <%isPrimaryKey%> = true%>
+
+			<%first%>
+			<%else%>
+				<%text%>, <%endtext%>
+			<%endfirst%>
+
+			<%text%>p_target<%^className%>.Get<%name%>()<%endtext%>
+
+		<%endif%>
+
+	<%endfor%>
+
+<%text%>, p_dbConnection);
+			if (t_target<%className%> == null) {
+				Logger.LogWarning("<%className%>DAO_Cache.Delete<%className%>() failed to find the target <%className%> object for specified keys.  We will assume that it has already been deleted.");
+				return true;
+			}
+
+
+			<%root.global.databaseName%>DAOFactory t_daoFactory = <%root.global.databaseName%>DAOFactory.GetFactoryInstance(p_dbConnection.GetConnectionID());
+			if (t_daoFactory == null) {
+				Logger.LogError("<%className%>DAO_Cache.Delete<%className%>() failed to get a DAO factory for connection ID [" + p_dbConnection.GetConnectionID() + "].");
+				return false;
+			}
+
+			<%customCode key="Delete<%className%>PreDelete" openingCommentCharacters="//"%>
+
+
+			synchronized (t_target<%className%>) {
+<%endtext%>
+
+
+
+	<<< This section finds all foreign key references to this table and cleans them up. >>>
+	<%outerContext contextname = "parentTable" %>
+
+		<%foreach node = "^table"  optionalCounterName = "innerTable" %>
+
+			<%foreach node = column %>
+
+				<%foreach node = foreignKey %>
+
+					<%if <%parentTableName%> = <%outerContextEval contextname = "parentTable" targetvalue = sqlName %> %>
+
+						<%if <%parentTableName%> = <%^^sqlName%> %>
+
+							<%text%>				<%^^className%>DAO t_child<%firstLetterToLowerCase value = <%^^className%>%>DAO = t_daoFactory.Get<%^^className%>DAO();
+				if (!t_child<%firstLetterToLowerCase value = <%^^className%>%>DAO.Delete<%^^className%>For<%camelCase value = <%parentTableName%>%>ID(t_target<%outerContextEval contextname = "parentTable" targetvalue = className%>.<%variable name = "cachePrimaryKeyGetFunction" evalmode = "evaluate" optionalContextName = "parentTable" %>, p_dbConnection)) {
+					Logger.LogError("<%outerContextEval contextname = "parentTable" targetvalue = className%>DAO_Cache.Delete<%outerContextEval contextname = "parentTable" targetvalue = className%>() failed to delete the child <%^^className%> from the database.");
+					return false;
+				}
+
+<%endtext%>
+
+						<%else%>
+
+							<%text%>				<%^^className%>DAO t_<%firstLetterToLowerCase value = <%^^className%>%>DAO = t_daoFactory.Get<%^^className%>DAO();
+				if (!t_<%firstLetterToLowerCase value = <%^^className%>%>DAO.Delete<%^^className%>For<%camelCase value = <%parentTableName%>%>ID(t_target<%outerContextEval contextname = "parentTable" targetvalue = className%>.<%variable name = "cachePrimaryKeyGetFunction" evalmode = "evaluate" optionalContextName = "parentTable" %>, p_dbConnection)) {
+					Logger.LogError("<%outerContextEval contextname = "parentTable" targetvalue = className%>DAO_Cache.Delete<%outerContextEval contextname = "parentTable" targetvalue = className%>() failed to delete the <%^^className%> from the database.");
+					return false;
+				}
+
+<%endtext%>
+
+						<%endif%>
+
+					<%endif%>
+
+				<%endfor%>
+
+			<%endfor%>
+
+		<%endfor%>
+
+	<%endcontext%>
+
+
+	<<< This section will find the first indication that this table participates in vectors, either as a parent or child, and then call the special DeleteAllVectorsForID() function only once to clean up all of those vectors. >>>
+	<%if exists = tableRelationship %>
+
+		<%text%>				VectorsDAO t_vectorDAO = t_daoFactory.GetVectorsDAO();
+				if (t_vectorDAO == null) {
+					Logger.LogError("<%className%>DAO_Cache.Delete<%className%>() failed to get a VectorsDAO instance.");
+					return false;
+				}
+
+				VectorTableLDAO t_vectorTableDAO = t_daoFactory.GetVectorTableLDAO();
+				if (t_vectorTableDAO == null) {
+					Logger.LogError("<%className%>DAO_Cache.Delete<%className%>() failed to get a VectorTableLDAO instance.");
+					return false;
+				}
+
+				if (!t_vectorDAO.DeleteAllVectorsForID(t_vectorTableDAO.GetVectorTableID("<%sqlName%>", p_dbConnection),
+													   t_target<%className%>.<%variable name = "cachePrimaryKeyGetFunction" evalmode = "evaluate" %>,
+													   p_dbConnection))
+				{
+					Logger.LogError("<%className%>DAO_Cache.Delete<%className%>() failed to delete all of the vectors for parent ID [" + t_target<%className%>.<%variable name = "cachePrimaryKeyGetFunction" evalmode = "evaluate" %> + "].");
+					return false;
+				}
+
+
+<%endtext%>
+
+	<%else%>
+
+		<%outerContext contextname = "parentTable" %>
+
+			<%foreach node = "^table"  optionalCounterName = "innerTable" %>
+
+				<%foreach node = "tableRelationship"%>
+
+					<%if <%parentTableName%> = <%outerContextEval contextname = "parentTable" targetvalue = sqlName %> %>
+
+						<%first  optionalCounterName = "innerTable" %>
+
+							<%text%>				VectorsDAO t_vectorDAO = t_daoFactory.GetVectorsDAO();
+				if (t_vectorDAO == null) {
+					Logger.LogError("<%outerContextEval contextname = "parentTable" targetvalue = className%>DAO_Cache.Delete<%outerContextEval contextname = "parentTable" targetvalue = className%>() failed to get a VectorsDAO instance.");
+					return false;
+				}
+
+				VectorTableLDAO t_vectorTableDAO = t_daoFactory.GetVectorTableLDAO();
+				if (t_vectorTableDAO == null) {
+					Logger.LogError("<%outerContextEval contextname = "parentTable" targetvalue = className%>DAO_Cache.Delete<%outerContextEval contextname = "parentTable" targetvalue = className%>() failed to get a VectorTableLDAO instance.");
+					return false;
+				}
+
+				if (!t_vectorDAO.DeleteAllVectorsForID(t_vectorTableDAO.GetVectorTableID("<%outerContextEval contextname = "parentTable" targetvalue = sqlName%>", p_dbConnection),
+													   t_target<%outerContextEval contextname = "parentTable" targetvalue = className%>.<%variable name = "cachePrimaryKeyGetFunction" evalmode = "evaluate" optionalContextName = "parentTable" %>,
+													   p_dbConnection))
+				{
+					Logger.LogError("<%outerContextEval contextname = "parentTable" targetvalue = className%>DAO_Cache.Delete<%outerContextEval contextname = "parentTable" targetvalue = className%>() failed to delete all of the vectors for parent ID [" + t_target<%outerContextEval contextname = "parentTable" targetvalue = className%>.<%variable name = "cachePrimaryKeyGetFunction" evalmode = "evaluate" optionalContextName = "parentTable" %> + "].");
+					return false;
+				}
+
+<%endtext%>
+
+						<%endfirst%>
+
+					<%endif%>
+
+				<%endfor%>
+
+			<%endfor%>
+
+		<%endcontext%>
+
+	<%endif%>
+
+
+
+	<%text%>				<%className%>DAO_DB t_<%firstLetterToLowerCase value = <%className%>%>DAO = new <%className%>DAO_DB();
+				if (!t_<%firstLetterToLowerCase value = <%className%>%>DAO.Delete<%className%>(t_target<%className%>, p_dbConnection)) {
+					Logger.LogError("<%className%>DAO_Cache.Delete<%className%>() failed to delete the <%className%> from the database.");
+					return false;
+				}
+
+
+				// If the cache is invalid, we have already committed the insert to the db so all we have to do to get the new <%className%> into it is reload the cache.
+				if (!m_cacheIsValid) {
+					try {
+						m_readWriteLock.readLock().lock();	// You have to have a the read lock before you can enter LoadCache().
+						if (!LoadCache(p_dbConnection)) {
+							Logger.LogError("<%className%>DAO_Cache.Delete<%className%>() failed to load the cache.");
+							return false;
+						}
+					}
+					finally {
+						m_readWriteLock.readLock().unlock();
+					}
+				}
+				else {	// Otherwise, we have to get the write lock on the cache before we can update it.
+					try {
+						m_readWriteLock.writeLock().lock();
+						DeleteFromCaches(t_target<%className%>);
+					}
+					finally {
+						m_readWriteLock.writeLock().unlock(); // Unlock write, still hold read
+					}
+				}
+			}	// End synchronized(t_target<%className%>).
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAO_Cache.Delete<%className%>() failed with error: ", t_error);
+			return false;
+		}
+
+		return true;
+	}
+<%endtext%>
+
+
+
+
+<%foreach node=column%>
+
+	<%if exists=foreignKey%>
+
+		<%foreach node=foreignKey%>
+
+			<%text%>
+
+	//*********************************
+	@Override
+	public boolean Delete<%^^className%>For<%camelCase value = <%parentTableName%>%>ID(<%variable name = "foreignKeyDBParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%camelCase value = <%parentColumnName%>%>%>, ConnectionProxy p_dbConnection)
+	{
+		try {
+			if (!p_dbConnection.getAutoCommit()) {
+				Logger.LogError("<%^^className%>DAO_Cache.Delete<%^^className%>For<%camelCase value = <%parentTableName%>%>ID() : cache DAOs are not built to work within DB transactions.  The results would be undefined.");
+				return false;
+			}
+
+			LinkedList<<%^^className%>> t_target<%^^className%>List = LoadAll<%^^className%>For<%^name%>(p_<%firstLetterToLowerCase value = <%camelCase value = <%parentColumnName%>%>%>, p_dbConnection);
+			if (t_target<%^^className%>List == null) {
+				Logger.LogError("<%^^className%>DAO_Cache.Delete<%^^className%>For<%camelCase value = <%parentTableName%>%>ID() failed to load the <%^^className%> from the cache for <%parentTableName%> ID [" + p_<%firstLetterToLowerCase value = <%camelCase value = <%parentColumnName%>%>%> + "].");
+				return false;
+			}
+
+			for (<%^^className%> t_next<%^^className%>: t_target<%^^className%>List) {
+				// The regular delete will take care of cascading the delete to any child tables attached to this one through foreign keys.
+				if (!Delete<%^^className%>(t_next<%^^className%>, p_dbConnection)) {
+					Logger.LogError("<%^^className%>DAO_Cache.Delete<%^^className%>For<%camelCase value = <%parentTableName%>%>ID() failed to delete the <%^^className%> from the database.");
+					return false;
+				}
+			}
+
+			// The regular delete will also take care of deleting all of the target records from the caches, so we don't need that here either.
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%^^className%>DAO_Cache.Delete<%^^className%>For<%camelCase value = <%parentTableName%>%>ID() failed with error: ", t_error);
+			return false;
+		}
+
+		return true;
+	}
+<%endtext%>
+
+		<%endfor%>
+
+	<%endif%>
+
+<%endfor%>
+
+
+
+<%text%>
+
+
+	<%customCode key=<%className%>Miscellaneous openingCommentCharacters="//"%>
+}
+<%endtext%>

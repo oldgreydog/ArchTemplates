@@ -1,0 +1,110 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+<%tabSettings tabLength = "4" outputType = "tabs" %>
+
+
+<%text%>/*
+ * This file was generated.
+ */
+
+package <%root.global.projectName%>.testing.unit.daos;
+
+
+
+import java.time.*;
+import java.util.*;
+
+import <%root.global.projectName%>.value_objects.*;
+import coreutil.logging.*;
+import coreutil.misc.*;
+import archtemputils.database.DBConnectionManager.*;
+import <%root.global.projectName%>.data_access_objects.*;
+import <%root.global.projectName%>.data_access_objects.factory.*;
+import <%root.global.projectName%>.marshalling.*;
+import <%root.global.projectName%>.testing.unit.data_generation.*;
+import systemtest.testframework.*;
+
+<%customCode key="<%className%>DAOImports" openingCommentCharacters="//"%>
+
+
+
+
+public class <%className%>DAOTest extends TestCase {
+
+
+	//*********************************
+	public <%className%>DAOTest(TestTreeNode p_parent) {
+		super(p_parent, "<%className%> DAO Validation Test");
+	}
+
+
+	//*********************************
+	/** This is a "Template Function".  Subclasses of this class should only overload the
+	 * protected template functions Setup(), Test(), Validate() and Cleanup().
+	 * @return Returns true if the test was successful and false otherwise. */
+	@Override
+	public boolean Test() {
+		ConnectionProxy t_dbConnection = new ConnectionProxy("<%root.global.projectName%>");
+		try {
+			<%className%> t_<%parameterName%> = <%className%>DataGenerator.GenerateValidInstance();
+			if (t_<%parameterName%> == null) {
+				Logger.LogError("<%className%>DAOTest.Test() failed to generate the new <%className%> test object.");
+				return false;
+			}
+
+			<%className%>DAO t_<%parameterName%>DAO = <%root.global.projectName%>DAOFactory.GetFactoryInstance(t_dbConnection.GetConnectionID()).Get<%className%>DAO();
+			if (t_<%parameterName%>DAO == null) {
+				Logger.LogError("<%className%>DAOTest.Test() failed to get a <%className%>DAO instance.");
+				return false;
+			}
+
+			if (!t_<%parameterName%>DAO.Create<%className%>(t_<%parameterName%>, t_dbConnection)) {
+				Logger.LogError("<%className%>DAOTest.Test() failed to create the new <%className%> in the database.");
+				return false;
+			}
+
+			// If you want to, you can change one or more fields in the <%className%> object in this custome code block to more realistically exercise the update to the DB.
+			<%customCode key=<%className%>DAOUpdateChanges openingCommentCharacters="//" leadingWhiteSpace="	"%>
+
+			if (!t_<%parameterName%>DAO.Update<%className%>(t_<%parameterName%>, t_dbConnection)) {
+				Logger.LogError("<%className%>DAOTest.Test() failed to update the <%className%> in the database.");
+				return false;
+			}
+
+			if (!t_<%parameterName%>DAO.Delete<%className%>(t_<%parameterName%>, t_dbConnection)) {
+				Logger.LogError("<%className%>DAOTest.Test() failed to delete the <%className%> record from the database.");
+				return false;
+			}
+
+
+			// Since this version of the DAO tests deals with foreign key parent-child relationships by ordering the "parent" tests first and leaving a record in the DB for the child to point to, we need to create that parent record before we leave the test.
+			t_<%parameterName%> = <%className%>DataGenerator.GenerateValidInstance();
+			if (t_<%parameterName%> == null) {
+				Logger.LogError("<%className%>DAOTest.Test() failed to generate the new parent <%className%> test object.");
+				return false;
+			}
+
+			if (!t_<%parameterName%>DAO.Create<%className%>(t_<%parameterName%>, t_dbConnection)) {
+				Logger.LogError("<%className%>DAOTest.Test() failed to create the new parent <%className%> in the database.");
+				return false;
+			}
+
+
+			<%customCode key=<%className%>DAOTestExtraCases openingCommentCharacters="//" leadingWhiteSpace="	"%>
+
+			return true;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>DAOTest.Test() failed with error:", t_error);
+			return false;
+		}
+		finally {
+			t_dbConnection.ReleaseConnection();
+		}
+	}
+
+
+	<%customCode key=<%className%>DAOCustomTests openingCommentCharacters="//" leadingWhiteSpace="	"%>
+
+}
+<%endtext%>

@@ -1,0 +1,94 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+<%tabSettings tabLength = "4" outputType = "tabs" %>
+
+
+<%text%><?xml version="1.0" encoding="UTF-8"?>
+
+<!-- This file was generated. -->
+
+
+ <Node name="root">
+
+	<Node name="sqlDB">
+
+		<!-- This first entry lets us access the db server admin (i.e. for creating, updating or dropping a specific db), where the other entry(s) point to a specific database ON the server. -->
+		<Node name="<%root.global.projectName%>_server">
+
+			<!-- The <Value> tags below are examples of the values that you have to put inside of the custom code block below.  You can probably
+				 use the shown values for everything but the user ID and password.  You need to set those to the values that you set up in your
+				 test PostgresSQL instance.
+
+			<Value name="label">Default DB</Value>
+			<Value name="maxConnectionCount">10</Value>
+			<Value name="maxConnectionReuseCount">5000</Value>
+			<Value name="connectionTimeout">2000</Value>
+			<Value name="maxConnectionRetries">10</Value>
+			<Value name="driver">org.postgresql.Driver</Value>
+			<Value name="url">jdbc:postgresql://localhost:5432/postgres</Value>
+			<Value name="userID">testuserID</Value>
+			<Value name="password">somepassword</Value>
+
+			-->
+
+			<%customCode key="<%root.global.projectName%>dbAdminUser" openingCommentCharacters="<!--" optionalClosingCommentCharacters="-->" %>
+
+
+			<Node name="dbSetupDDLFiles">
+				<!-- The two <Value> tags below are examples of the values that you can put inside of the custom code block below.  You can
+					 include as many as you need, but you will have to adjust the paths (particularly if you use relative paths) to be correct
+					 for where you are running your executable in the directory tree.
+
+				<Value name="file" >../ddl/coredb.ddl</Value>
+				<Value name="file" >../ddl/coredb_default_data.sql</Value>
+
+				 -->
+
+				<%customCode key="<%root.global.projectName%>dbSetupDDLFiles" openingCommentCharacters="<!--" optionalClosingCommentCharacters="-->" %>
+			</Node>
+		</Node>
+
+
+		<!-- This second entry is the one that's used for normal access to the user database used by the code.	-->
+		<Node name="<%root.global.projectName%>">
+
+			<!-- The <Value> tags below are examples of the values that you have to put inside of the custom code block below.  You can probably
+				 them with the user ID and password that you set up in your test PostgresSQL instance.  Depending on how you've set it up, this
+				 user may be the same as of different from the admin user above.  This is just for testing, so I usually just use the same one.
+
+			<Value name="label">Default DB</Value>
+			<Value name="maxConnectionCount">10</Value>
+			<Value name="maxConnectionReuseCount">5000</Value>
+			<Value name="connectionTimeout">2000</Value>
+			<Value name="maxConnectionRetries">10</Value>
+			<Value name="driver">org.postgresql.Driver</Value>
+			<Value name="url">jdbc:postgresql://localhost:5432/postgres</Value>
+			<Value name="userID">testuserID</Value>
+			<Value name="password">somepassword</Value>
+
+			-->
+
+			<%customCode key="<%root.global.projectName%>dbRegularUser" openingCommentCharacters="<!--" optionalClosingCommentCharacters="-->" %>
+
+		</Node>
+
+		<%customCode key="<%root.global.projectName%>TestDBs" openingCommentCharacters="<!--" optionalClosingCommentCharacters="-->" %>
+	</Node>
+
+
+
+	<Node name="testSets">
+		<Node name="testSet">
+			<Value name="groupID" description="Unit Tests">unit</Value>
+			<Value name="class"><%root.global.projectName%>.testing.unit.<%root.global.projectName%>UnitTests</Value>
+		</Node>
+
+		<%customCode key="<%root.global.projectName%>ExtraTests" openingCommentCharacters="<!--" optionalClosingCommentCharacters="-->" %>
+	</Node>
+
+
+	<%customCode key="<%root.global.projectName%>TestConfigMisc" openingCommentCharacters="<!--" optionalClosingCommentCharacters="-->" %>
+
+</Node>
+<%endtext%>
+

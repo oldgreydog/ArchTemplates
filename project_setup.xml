@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Sample build section:
+		<Node name="build">
+			<Value name="rootProjectTemplatePath"	>%%root.global.rootTemplatesPath%%/data_stores/sql/postgresql/java</Value>
+		</Node>
+
+	The notation "%%root.global.rootTemplatesPath%%" above works very much like the substitution of config values into a template
+	but its done by the code that parses and maintains this config file in memory, not the code generator.  It lets you do
+	substitutions in the config values here before they are passed to the code generator itself.  That makes it easier to create
+	things like the file path(s) below that can be much more generic and easier to maintain that hard coding every place in the
+	values that requires the full path(s).
+-->
+<Node name="root">
+	<Node name="global">
+		<Value name="codeGeneratorLibPath"		>/home/kaylor/dev/projects/sandboxes/CodeGenerator/lib</Value>
+		<Value name="rootTemplatesPath"			>/home/kaylor/dev/projects/sandboxes/ArchTemplates</Value>
+		<Value name="rootOutputPath"			>/home/kaylor/temp/code_generator/ArchDev</Value>
+	</Node>
+
+	<Node name="projects">
+
+		<Node name="project">
+			<Value name="projectName">coredb</Value>
+
+			<Node name="builds">
+
+				<Node name="build">
+					<Value name="rootProjectTemplatePath"	>%%global.rootTemplatesPath%%/data_stores/sql/postgresql/java</Value>
+				</Node>
+
+			</Node>
+
+		</Node>
+
+	</Node>
+
+</Node>

@@ -1,0 +1,26 @@
+
+
+key-value
+
+	Redis
+
+		docker
+			official image: https://hub.docker.com/_/redis/
+			run command:	docker run --name test-redis -d redis
+
+
+
+document
+
+	Cassandra
+
+		docker
+			official image: https://hub.docker.com/_/cassandra/
+			run command:	docker run --name test-cassandra -d cassandra:latest
+
+
+
+Get Started:
+
+	To start this process, choose where you're going to generate to.  Most of the time you will create a root directory to generate into
+	separate from your working directories.

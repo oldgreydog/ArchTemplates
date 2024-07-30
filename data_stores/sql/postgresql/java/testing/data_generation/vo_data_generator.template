@@ -1,0 +1,158 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+<%tabSettings tabLength = "4" outputType = "tabs" %>
+
+
+<%text%>/*
+ * This file was generated.
+ */
+
+package <%root.global.projectName%>.testing.unit.data_generation;
+
+
+
+import java.util.*;
+
+import <%root.global.projectName%>.data_access_objects.*;
+import <%root.global.projectName%>.data_access_objects.factory.*;
+import <%root.global.projectName%>.value_objects.*;
+import coreutil.logging.*;
+import systemtest.testframework.util.*;
+
+<%customCode key="<%className%>DataGenerationImports" openingCommentCharacters="//"%>
+
+
+
+public class <%className%>DataGenerator {
+
+
+	//*********************************
+	/**
+	* Since this is attempting to generate a "valid" instance, then in cases where one or more columns are
+	* foreign keys, then that table's function will require parameters for valid parent IDs to put in those
+	* foreign key values.  This will be used by any code that tries to generate valid trees of data.
+	*/
+	static public <%className%> GenerateValidInstance() {
+<%endtext%>
+
+<%foreach node=column optionalCounterName = "columnCounter" %>
+
+	<%if <%and	exists=foreignKey
+				<%not <%foreignKey.parentTableName%> = <%^sqlName%> %> = true
+		 %> = true %>
+
+		<%first%>
+
+			<%text%>		<%root.global.databaseName%>DAOFactory t_daoFactory = <%root.global.databaseName%>DAOFactory.GetFactoryInstance("<%root.global.databaseName%>");
+		if (t_daoFactory == null) {
+			Logger.LogError("<%^className%>DataGenerator.GenerateValidInstance() failed to get a DAO factory for connection ID [<%root.global.databaseName%>].");
+			return null;
+		}
+
+<%endtext%>
+
+		<%endfirst%>
+
+		<%text%>		<%camelCase value = <%foreignKey.parentTableName%> %>DAO t_parent<%camelCase value = <%foreignKey.parentTableName%> %>DAO = t_daoFactory.Get<%camelCase value = <%foreignKey.parentTableName%> %>DAO();
+		if (t_parent<%camelCase value = <%foreignKey.parentTableName%> %>DAO == null) {
+			Logger.LogError("<%^className%>DataGenerator.GenerateValidInstance() failed to get a [<%camelCase value = <%foreignKey.parentTableName%> %>DAO] for the [<%root.global.databaseName%>] database.");
+			return null;
+		}
+
+		LinkedList<<%camelCase value = <%foreignKey.parentTableName%> %>> t_parent<%camelCase value = <%foreignKey.parentTableName%> %>All = t_parent<%camelCase value = <%foreignKey.parentTableName%> %>DAO.LoadAll<%camelCase value = <%foreignKey.parentTableName%> %>("<%root.global.databaseName%>");
+		if ((t_parent<%camelCase value = <%foreignKey.parentTableName%> %>All == null) || t_parent<%camelCase value = <%foreignKey.parentTableName%> %>All.isEmpty()) {
+			Logger.LogError("<%^className%>DataGenerator.GenerateValidInstance() failed to get a [<%camelCase value = <%foreignKey.parentTableName%> %>] parent record for the [<%root.global.databaseName%>] database.");
+			return null;
+		}
+
+		<%camelCase value = <%foreignKey.parentTableName%> %> t_parent<%camelCase value = <%foreignKey.parentTableName%> %> = t_parent<%camelCase value = <%foreignKey.parentTableName%> %>All.getFirst();
+		<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "builtin" %> t_<%parameterName%> = t_parent<%camelCase value = <%foreignKey.parentTableName%> %>.Get<%camelCase value = <%foreignKey.parentColumnName%> %>();
+
+
+<%endtext%>
+
+
+	<%endif%>
+
+<%endfor%>
+
+
+	<%text%>		return new <%className%>(<%tabMarker%><%endtext%>
+
+<%foreach node=column%>
+
+	<%if <%not <%and exists=isKeyGenerated <%isKeyGenerated%> = true %> = true %> = true %>
+
+		<%first%>
+		<%else%>
+
+			<%text%>,
+<%tabStop stopType = "marker" %><%endtext%>
+
+		<%endfirst%>
+
+
+		<%if exists=foreignKey %>
+
+			<%if <%not <%foreignKey.parentTableName%> = <%^sqlName%> %> = true %>
+
+				<%text%>t_<%parameterName%><%endtext%>
+
+			<%else%>
+
+				<%text%>null<%endtext%>
+
+			<%endif%>
+
+		<%else%>
+
+			<%if <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = String %>
+				<%text%>DataGenerator.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "dataGenerator" %>(<%valueMaxSize%>)<%endtext%>
+			<%else%>
+				<%text%>DataGenerator.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "dataGenerator" %>()<%endtext%>
+			<%endif%>
+
+		<%endif%>
+
+	<%endif%>
+
+<%endfor%>
+
+<%text%>);
+	}
+
+
+	//*********************************
+	/**
+	* This function will just fill all fields with values that are valid for their type.  That only makes them good for doing simple
+	* tests like value validation and marshaling tests.
+	*/
+	static public <%className%> GenerateDummyInstance() {
+		return new <%className%>(<%tabMarker%><%endtext%>
+
+<%foreach node=column%>
+
+	<%if <%not <%and exists=isKeyGenerated <%isKeyGenerated%> = true %> = true %> = true %>
+
+		<%first%>
+		<%else%>
+
+			<%text%>,
+<%tabStop stopType = "marker" %><%endtext%>
+
+		<%endfirst%>
+
+		<%if <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = String %>
+			<%text%>DataGenerator.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "dataGenerator" %>(<%valueMaxSize%>)<%endtext%>
+		<%else%>
+			<%text%>DataGenerator.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "dataGenerator" %>()<%endtext%>
+		<%endif%>
+
+	<%endif%>
+
+<%endfor%>
+
+<%text%>);
+	}
+}
+<%endtext%>

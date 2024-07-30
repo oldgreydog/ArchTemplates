@@ -1,0 +1,25 @@
+
+
+Build
+	To build this code, you need libpqxx and the postgresql C library dev (i.e. header) files it depends on.
+
+	Ubuntu
+		You need to install the libpq-dev package to get the C header files.
+
+	libpqxx
+		You can get the latest release code of libpqxx from github:  https://github.com/jtv/libpqxx
+
+		The documentation there and in the release explain the two options for building this library.
+
+
+Generation
+
+	Schema Generation
+
+		The templates for sql are designed such that you should be able to define a "generic" schema at the parent level and
+		then use that to generate product-specific schema config XML files (i.e. Postgresql, MariaDB, SQLServer, etc.).  From
+		there the product specific templates can be written without most of the translate tags that would be necessary if they
+		were written against the generic parent schema.
+
+		The product-specific schema is generated  by the parent's generate calling each of the child product's generate_schema
+		batch files and then calling the child's generate batch file.

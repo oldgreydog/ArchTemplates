@@ -1,0 +1,12 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+<%text%>
+
+# This can be called with "clean" as the parameter to get a clean build and with no parameter to get a "build all" build.
+
+ant $@
+
+if [ $? != 0 ]; then
+	printf "Error: [ant $@] build for project [<%root.global.projectName%>] failed.\n"
+	exit $?
+fi
+<%endtext%>

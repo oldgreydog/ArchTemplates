@@ -1,0 +1,216 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+<%tabSettings tabLength = "4" outputType = "tabs" %>
+
+
+
+<%text%>/*
+ * This file was generated.
+ */
+
+package <%root.global.packageName%>.data_access_objects.factory;
+
+
+
+import coreutil.config.*;
+import coreutil.logging.*;
+import archtemputils.database.*;
+import archtemputils.database.DBConnectionManager.*;
+import archtemputils.messagerouter.*;
+
+import java.util.*;
+import java.util.concurrent.locks.*;
+
+import <%root.global.packageName%>.data_access_objects.*;
+import <%root.global.packageName%>.data_access_objects.db.*;
+import <%root.global.packageName%>.data_access_objects.cache.*;
+import <%root.global.packageName%>.data_access_objects.net.*;
+
+
+
+public class <%root.global.databaseName%>DAOFactory extends DAOFactory_Base {
+
+	// Static members
+	static private final ReentrantReadWriteLock						s_instanceMapLock		= new ReentrantReadWriteLock();
+	static private final TreeMap<String, <%root.global.databaseName%>DAOFactory>		s_factoryInstanceMap	= new TreeMap<>();
+
+
+	// We need this "get instance" mechanism to allow each instance of a database to maintain its own copies of any caches that it may need separate from all other instances.
+	static public <%root.global.databaseName%>DAOFactory GetFactoryInstance(String p_dbName) {
+		try {
+			s_instanceMapLock.readLock().lock();
+
+			// Both of these functions are thread safe, so no locking here.
+			<%root.global.databaseName%>DAOFactory t_targetInstance = s_factoryInstanceMap.get(p_dbName);
+			if (t_targetInstance == null) {
+				try {
+					// We have to release the read lock before we can acquire the write lock.  Otherwise, we'll lock up.
+					s_instanceMapLock.readLock().unlock();
+					s_instanceMapLock.writeLock().lock();
+
+					// Check again to be sure that another thread hasn't already created the instance.
+					t_targetInstance = s_factoryInstanceMap.get(p_dbName);
+					if (t_targetInstance == null) {
+						t_targetInstance = new <%root.global.databaseName%>DAOFactory();
+						if (!t_targetInstance.Init()) {
+							Logger.LogError("<%root.global.databaseName%>DAOFactory.GetFactoryInstance() failed to initialize an instance for database name [" + p_dbName + "].");
+							return null;
+						}
+
+						s_factoryInstanceMap.put(p_dbName, t_targetInstance);
+					}
+				}
+				finally {
+					// Downgrade by acquiring read lock before releasing write lock
+					s_instanceMapLock.readLock().lock();
+					s_instanceMapLock.writeLock().unlock(); // Unlock write, still hold read
+				}
+			}
+
+			return t_targetInstance;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%root.global.databaseName%>DAOFactory.GetFactoryInstance() failed with error: ", t_error);
+			return null;
+		}
+		finally {
+			s_instanceMapLock.readLock().unlock();
+		}
+	}
+
+
+
+	// Data members
+<%endtext%>
+
+
+
+<%foreach node=table%>
+	<%text%>	private int		m_<%firstLetterToLowerCase value = <%className%>%>DAOType	<%tabStop stopType = "stop" offset = "56" %>= DAO_ID_UNDEFINED;
+<%endtext%>
+
+<%endfor%>
+
+	<%text%>
+
+	private final TreeMap<String, CacheDAO>		m_cacheMap			= new TreeMap<>();
+
+	private volatile boolean					m_initialized		= false;
+
+
+
+	//*********************************
+	public boolean IsInitialized() {
+		return m_initialized;
+	}
+
+
+	//*********************************
+	private synchronized boolean Init() {
+		if (m_initialized)
+			return true;
+
+		ConfigNode t_daoTypes = ConfigManager.GetNode("daoTypes.<%firstLetterToLowerCase value = <%root.global.databaseName%>%>");
+		if (t_daoTypes == null) {
+			Logger.LogError("<%root.global.databaseName%>DAOFactory.Init() failed to find the config node [daoTypes.<%firstLetterToLowerCase value = <%root.global.databaseName%>%>].");
+			return false;
+		}
+
+		String t_valueName;
+		for (ConfigValue t_nextValue: t_daoTypes.GetChildValueList()) {
+			t_valueName = t_nextValue.GetName();
+<%endtext%>
+
+
+<%foreach node=table%>
+	<%first%>
+		<%text%>			if<%endtext%>
+	<%else%>
+		<%text%>			else if<%endtext%>
+	<%endfirst%>
+
+	<%text%> (t_valueName.equals("<%className%>DAO")) {
+				m_<%firstLetterToLowerCase value = <%className%>%>DAOType = ConvertDAOType(t_nextValue.GetStringValue());
+				if (m_<%firstLetterToLowerCase value = <%className%>%>DAOType == DAO_ID_UNDEFINED) {
+					Logger.LogError("<%root.global.databaseName%>DAOFactory.Init() found an unknown value [" + t_nextValue.GetStringValue() + "] for config value [" + t_valueName + "].");
+					return false;
+				}
+				else if ((m_<%firstLetterToLowerCase value = <%className%>%>DAOType == DAO_ID_CACHED) && (Get<%className%>DAO() == null)) {
+					Logger.LogError("<%root.global.databaseName%>DAOFactory.Init() failed to create the [" + t_valueName + "] cache object.");
+					return false;
+				}
+			}
+<%endtext%>
+<%endfor%>
+
+
+<%text%>			else {
+				Logger.LogError("<%root.global.databaseName%>DAOFactory.Init() found an unknown config value [" + t_valueName + "].");
+				return false;
+			}
+		}
+
+		m_initialized = true;
+		return true;
+	}
+<%endtext%>
+
+
+<%text%>
+
+	//*********************************
+	public boolean PreloadCaches(ConnectionProxy p_dbConnection) {
+		// We can't lock on m_cacheMap here because there is a slight chance that some cache may require one or more other caches to load itself so we would create a race condition here if we locked.
+		for (CacheDAO t_nextCache: m_cacheMap.values()) {
+			if (!t_nextCache.PreloadCache(p_dbConnection)) {
+				Logger.LogError("<%root.global.databaseName%>DAOFactory.PreloadCaches() failed to preload the cache for [" + t_nextCache.GetName() + "].");
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+
+	//*********************************
+	/**
+	* This is really only intended to be used by test code because if you're creating and destroying the db underneath the caches, then you have to have a way to reset the caches for every test (because the caches are in a singleton that survives across the test cases).
+	*/
+	public void InvalidateAllCaches() {
+		for (CacheDAO t_nextCache: m_cacheMap.values())
+			t_nextCache.InvalidateCache();
+	}
+<%endtext%>
+
+
+<%foreach node=table%>
+	<%text%>
+
+	//*********************************
+	public <%className%>DAO Get<%className%>DAO() {
+		switch (m_<%firstLetterToLowerCase value = <%className%>%>DAOType) {
+			case DAO_ID_CLIENT:	return new <%className%>DAO_NET(MessageRouter.GetInstance(MessageRouter.DEFAULT_INSTANCE_NAME));
+			case DAO_ID_CACHED:
+				synchronized (m_cacheMap) {
+					<%className%>DAO_Cache t_dao = (<%className%>DAO_Cache)m_cacheMap.get("<%className%>DAO");
+					if (t_dao == null) {
+						t_dao = new <%className%>DAO_Cache();
+						m_cacheMap.put("<%className%>DAO", t_dao);
+					}
+
+					return t_dao;
+				}
+
+			case DAO_ID_DB:		return new <%className%>DAO_DB();
+
+			default:
+				Logger.LogError("<%root.global.databaseName%>DAOFactory.Get<%className%>DAO() was not configured for a return type.");
+				return null;
+		}
+	}
+<%endtext%>
+<%endfor%>
+
+	<%text%>
+}
+<%endtext%>

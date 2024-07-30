@@ -1,0 +1,317 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+<%tabSettings tabLength = "4" outputType = "tabs" %>
+
+
+<%text%>/*
+ * This file was generated.
+ */
+
+package <%root.global.projectName%>.testing.unit.value_objects;
+
+
+
+import java.time.*;
+import java.util.*;
+
+import coreutil.misc.*;
+import <%root.global.projectName%>.value_objects.*;
+import <%root.global.projectName%>.marshalling.*;
+import <%root.global.projectName%>.testing.unit.data_generation.*;
+import systemtest.testframework.*;
+
+<%customCode key="<%className%>VOImports" openingCommentCharacters="//"%>
+
+
+
+
+public class <%className%>MemberValidationTest extends TestCase {
+
+
+	//*********************************
+	public <%className%>MemberValidationTest(TestTreeNode p_parent) {
+		super(p_parent, "<%className%> Member Validation Test");
+	}
+
+
+	//*********************************
+	/** This is a "Template Function".  Subclasses of this class should only overload the
+	 * protected template functions Setup(), Test(), Validate() and Cleanup().
+	 * @return Returns true if the test was successful and false otherwise. */
+	@Override
+	public boolean Test() {
+<%endtext%>
+
+<%foreach node=column%>
+
+	<%first%>
+	<%text%>		if (<%endtext%>
+	<%else%>
+		<%text%> ||
+			<%endtext%>
+	<%endfirst%>
+
+	<%text%>!Test_Validate<%name%>()<%endtext%>
+
+<%endfor%>
+
+<%text%> ||
+			!Test_Marshal())
+		{
+			return false;
+		}
+
+		<%customCode key="<%className%>TestExtraCases" openingCommentCharacters="//"%>
+
+		return true;
+	}
+<%endtext%>
+
+
+
+<%foreach node=column%>
+<%text%>
+
+	//*********************************
+	public boolean Test_Validate<%name%>() {
+		try {
+			<%^className%><%tabStop stopType=stop offset=24%>	<%tabMarker%>t_<%^parameterName%>	<%tabStop stopType=marker offset=24%>= new <%^className%>();
+			StringBuilder	<%tabStop stopType=marker%>t_errorMessagesReturn	<%tabStop stopType=marker offset=24%>= new StringBuilder();
+<%endtext%>
+
+<%if  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = Integer%>
+<%text%>			if (!t_<%^parameterName%>.Validate<%name%>Input("" + Integer.MAX_VALUE, t_errorMessagesReturn)) {
+				m_log.AddError("Validate<%name%>Input() failed to handle the value [" + Integer.MAX_VALUE + "] with error messages:\n" + t_errorMessagesReturn);
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = Byte%>
+<%text%>			if (!t_<%^parameterName%>.Validate<%name%>Input("" + Byte.MAX_VALUE, t_errorMessagesReturn)) {
+				m_log.AddError("Validate<%name%>Input() failed to handle the value [" + Byte.MAX_VALUE + "] with error messages:\n" + t_errorMessagesReturn);
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = Short%>
+<%text%>			if (!t_<%^parameterName%>.Validate<%name%>Input("" + Short.MAX_VALUE, t_errorMessagesReturn)) {
+				m_log.AddError("Validate<%name%>Input() failed to handle the value [" + Short.MAX_VALUE + "] with error messages:\n" + t_errorMessagesReturn);
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = Long%>
+<%text%>			if (!t_<%^parameterName%>.Validate<%name%>Input("" + Long.MAX_VALUE, t_errorMessagesReturn)) {
+				m_log.AddError("Validate<%name%>Input() failed to handle the value [" + Long.MAX_VALUE + "] with error messages:\n" + t_errorMessagesReturn);
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = Float%>
+<%text%>			if (!t_<%^parameterName%>.Validate<%name%>Input("" + Float.MAX_VALUE, t_errorMessagesReturn)) {
+				m_log.AddError("Validate<%name%>Input() failed to handle the value [" + Float.MAX_VALUE + "] with error messages:\n" + t_errorMessagesReturn);
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = Double%>
+<%text%>			if (!t_<%^parameterName%>.Validate<%name%>Input("" + Double.MAX_VALUE, t_errorMessagesReturn)) {
+				m_log.AddError("Validate<%name%>Input() failed to handle the value [" + Double.MAX_VALUE + "] with error messages:\n" + t_errorMessagesReturn);
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = Boolean%>
+<%text%>			if (!t_<%^parameterName%>.Validate<%name%>Input("true", t_errorMessagesReturn)) {
+				m_log.AddError("Validate<%name%>Input() failed to handle the value [true]");
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = String%>
+<%text%>			String	<%tabStop stopType=marker%>t_testString	<%tabStop stopType=marker offset=24%>= GenerateString(<%valueMaxSize%>);
+			if (!t_<%^parameterName%>.Validate<%name%>Input(t_testString, t_errorMessagesReturn)) {
+				m_log.AddError("Validate<%name%>Input() failed to handle the value [" + t_testString + "] with error messages:\n" + t_errorMessagesReturn);
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime%>
+<%text%>			String	<%tabStop stopType=marker%>t_testDateString	<%tabStop stopType=marker offset=24%>= StringUtilities.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "formatFunc" %>(LocalDateTime.now(), "-");
+			if (!t_<%^parameterName%>.Validate<%name%>Input(t_testDateString, t_errorMessagesReturn)) {
+				m_log.AddError("Validate<%name%>Input() failed to handle the value [" + t_testDateString + "] with error messages:\n" + t_errorMessagesReturn);
+<%endtext%>
+
+<%elseif  <%type%> = "timestamp with time zone"%>
+<%text%>			String	<%tabStop stopType=marker%>t_testDateString	<%tabStop stopType=marker offset=24%>= StringUtilities.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "formatFunc" %>(ZonedDateTime.now(), "-");
+			if (!t_<%^parameterName%>.Validate<%name%>Input(t_testDateString, t_errorMessagesReturn)) {
+				m_log.AddError("Validate<%name%>Input() failed to handle the value [" + t_testDateString + "] with error messages:\n" + t_errorMessagesReturn);
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate%>
+<%text%>			String	<%tabStop stopType=marker%>t_testDateString	<%tabStop stopType=marker offset=24%>= StringUtilities.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "formatFunc" %>(LocalDate.now(), "-");
+			if (!t_<%^parameterName%>.Validate<%name%>Input(t_testDateString, t_errorMessagesReturn)) {
+				m_log.AddError("Validate<%name%>Input() failed to handle the value [" + t_testDateString + "] with error messages:\n" + t_errorMessagesReturn);
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime%>
+<%text%>			String	<%tabStop stopType=marker%>t_testDateString	<%tabStop stopType=marker offset=24%>= StringUtilities.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "formatFunc" %>(LocalTime.now());
+			if (!t_<%^parameterName%>.Validate<%name%>Input(t_testDateString, t_errorMessagesReturn)) {
+				m_log.AddError("Validate<%name%>Input() failed to handle the value [" + t_testDateString + "] with error messages:\n" + t_errorMessagesReturn);
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[]%>
+<%text%>			if (!true);
+<%endtext%>
+<%else%>
+<%text%>An unknown type [<%type%>] was not handled by the template.
+<%endtext%>
+<%endif%>
+<%text%>				return false;
+			}
+
+			return true;
+		}
+		catch (Exception t_error) {
+			m_log.AddError("<%^className%>MemberValidationTest.Test_Validate<%name%>() failed with error: " + t_error.getMessage());
+			return false;
+		}
+	}
+
+
+	//*********************************
+	public boolean Test_Set<%name%>() {
+		try {
+			<%^className%> t_<%firstLetterToLowerCase value = <%^className%>%> = new <%^className%>();
+<%endtext%>
+
+<%if  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = Integer%>
+<%text%>			t_<%firstLetterToLowerCase value = <%^className%>%>.Set<%name%>(1);
+			if (1 != (int)t_<%firstLetterToLowerCase value = <%^className%>%>.Get<%name%>()) {
+				m_log.AddError("Test_Set<%name%>() failed to set the int value [1]");
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = Byte%>
+<%text%>			t_<%firstLetterToLowerCase value = <%^className%>%>.Set<%name%>(1l);
+			if (1l != (long)t_<%firstLetterToLowerCase value = <%^className%>%>.Get<%name%>()) {
+				m_log.AddError("Test_Set<%name%>() failed to set the long value [1l]");
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = Short%>
+<%text%>			t_<%firstLetterToLowerCase value = <%^className%>%>.Set<%name%>(1l);
+			if (1l != (long)t_<%firstLetterToLowerCase value = <%^className%>%>.Get<%name%>()) {
+				m_log.AddError("Test_Set<%name%>() failed to set the long value [1l]");
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = Long%>
+<%text%>			t_<%firstLetterToLowerCase value = <%^className%>%>.Set<%name%>(1l);
+			if (1l != (long)t_<%firstLetterToLowerCase value = <%^className%>%>.Get<%name%>()) {
+				m_log.AddError("Test_Set<%name%>() failed to set the long value [1l]");
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = Float%>
+<%text%>			t_<%firstLetterToLowerCase value = <%^className%>%>.Set<%name%>(1.0f);
+			if (1.0f != (float)t_<%firstLetterToLowerCase value = <%^className%>%>.Get<%name%>()) {
+				m_log.AddError("Test_Set<%name%>() failed to set the float value [1.0f]");
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = Double%>
+<%text%>			t_<%firstLetterToLowerCase value = <%^className%>%>.Set<%name%>(1.0d);
+			if (1.0d != (double)t_<%firstLetterToLowerCase value = <%^className%>%>.Get<%name%>(), 0) {
+				m_log.AddError("Test_Set<%name%>() failed to set the double value [1.0d]");
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = Boolean%>
+<%text%>			t_<%firstLetterToLowerCase value = <%^className%>%>.Set<%name%>(true);
+			if (true != t_<%firstLetterToLowerCase value = <%^className%>%>.Get<%name%>()) {
+				m_log.AddError("Test_Set<%name%>() failed to set the boolean value [true]");
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = String%>
+<%text%>			String t_value = GenerateString(<%valueMaxSize%>);
+			t_<%firstLetterToLowerCase value = <%^className%>%>.Set<%name%>(t_value);
+			if (!t_value.equals(t_<%firstLetterToLowerCase value = <%^className%>%>.Get<%name%>())) {
+				m_log.AddError("Test_Set<%name%>() failed to set the string value [" + t_value + "]");
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime%>
+<%text%>			<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> t_now = <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %>.now();
+			t_<%firstLetterToLowerCase value = <%^className%>%>.Set<%name%>(t_now);
+			if (!t_now.equals(t_<%firstLetterToLowerCase value = <%^className%>%>.Get<%name%>())) {
+				m_log.AddError("Test_Set<%name%>() failed to set the date value [" + StringUtilities.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "formatFunc" %>(t_now, "-") + "]");
+<%endtext%>
+
+<%elseif  <%type%> = "timestamp with time zone"%>
+<%text%>			<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> t_now = <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %>.now();
+			t_<%firstLetterToLowerCase value = <%^className%>%>.Set<%name%>(t_now);
+			if (!t_now.equals(t_<%firstLetterToLowerCase value = <%^className%>%>.Get<%name%>())) {
+				m_log.AddError("Test_Set<%name%>() failed to set the date value [" + StringUtilities.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "formatFunc" %>(t_now, "-") + "]");
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate%>
+<%text%>			<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> t_now = <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %>.now();
+			t_<%firstLetterToLowerCase value = <%^className%>%>.Set<%name%>(t_now);
+			if (!t_now.equals(t_<%firstLetterToLowerCase value = <%^className%>%>.Get<%name%>())) {
+				m_log.AddError("Test_Set<%name%>() failed to set the date value [" + StringUtilities.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "formatFunc" %>(t_now, "-") + "]");
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime%>
+<%text%>			<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> t_now = <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %>.now();
+			t_<%firstLetterToLowerCase value = <%^className%>%>.Set<%name%>(t_now);
+			if (!t_now.equals(t_<%firstLetterToLowerCase value = <%^className%>%>.Get<%name%>())) {
+				m_log.AddError("Test_Set<%name%>() failed to set the date value [" + StringUtilities.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "formatFunc" %>(t_now) + "]");
+<%endtext%>
+
+<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[]%>
+<%text%>			t_<%firstLetterToLowerCase value = <%^className%>%>.Set<%name%>(1);
+			if (!t_now.equals(t_<%firstLetterToLowerCase value = <%^className%>%>.Get<%name%>())) {
+				m_log.AddError("Test_Set<%name%>() failed to set the byte value [1]");
+<%endtext%>
+
+<%else%>
+<%text%>An unknown type [<%type%>] was not handled by the template.
+<%endtext%>
+<%endif%>
+<%text%>				return false;
+			}
+		}
+		catch (Exception t_error) {
+			m_log.AddError("<%^className%>MemberValidationTest.Test_Set<%name%>() failed with error: " + t_error.getMessage());
+		}
+
+		return true;
+	}
+<%endtext%>
+<%endfor%>
+
+
+<%text%>
+
+
+	<%customCode key=<%className%>CustomTests openingCommentCharacters="//" leadingWhiteSpace="	"%>
+
+
+	//*********************************
+	public boolean Test_Marshal() {
+		try {
+			<%className%>Marshalling	<%tabMarker%>t_<%parameterName%>Marshaller	<%tabStop stopType=marker offset=36%>= coredbMarshallingFactory.Get<%className%>Marshalling(coredbMarshallingFactory.MARCHALLING_TYPE_IN_ORDER_JSON);
+			<%className%>	<%tabStop stopType = "marker"%>t_<%parameterName%>	<%tabStop stopType=marker offset=36%>= <%className%>DataGenerator.GenerateDummyInstance();
+			String	<%tabStop stopType = "marker"%>t_json	<%tabStop stopType=marker offset=36%>= t_<%parameterName%>Marshaller.Marshal(t_<%parameterName%>);
+			if ((t_json == null) || t_json.isEmpty()) {
+				m_log.AddError("<%className%>MemberValidationTest.Test_Marshal() failed to marshal a [<%className%>] object.");
+				return false;
+			}
+
+			<%className%>	<%tabStop stopType = "marker"%>t_unmarshaled<%className%>	<%tabStop stopType=marker offset=36%>= t_<%parameterName%>Marshaller.UnMarshal(t_json);
+			if ((t_unmarshaled<%className%> == null) || !t_unmarshaled<%className%>.toString().equals(t_<%parameterName%>.toString())) {
+				m_log.AddError("<%className%>MemberValidationTest.Test_Marshal() failed to marshal a [<%className%>] object.");
+				return false;
+			}
+		}
+		catch (Exception t_error) {
+			m_log.AddError("<%className%>MemberValidationTest.Test_Marshal() failed with error: " + t_error.getMessage());
+			return false;
+		}
+
+		return true;
+	}
+
+
+	//*********************************
+	private String GenerateString(int p_size) {
+		int t_size = p_size;
+		if (t_size > Math.pow(2, 16))
+			t_size = (int) Math.pow(2, 16);
+
+		StringBuilder t_result = new StringBuilder();
+		while (t_size-- > 0)
+			t_result.append("a");
+
+		return t_result.toString();
+	}
+}
+<%endtext%>

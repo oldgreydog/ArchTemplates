@@ -1,0 +1,324 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+<%tabSettings tabLength = "4" outputType = "tabs" %>
+
+
+<%text%>/*
+ * This file was generated.
+ */
+
+package <%root.global.packageName%>.marshalling.inorder;
+
+
+
+import java.sql.*;
+import java.time.*;
+import java.util.*;
+
+import com.google.gson.*;
+
+import coreutil.logging.*;
+import coreutil.misc.*;
+import <%root.global.packageName%>.marshalling.*;
+import <%root.global.packageName%>.value_objects.*;
+
+
+
+public class InOrder<%className%>Marshalling implements <%className%>Marshalling {
+
+
+	//*********************************
+	@Override
+	public String Marshal(<%className%> p_<%firstLetterToLowerCase value = <%className%>%>) {
+		try {
+			StringBuilder	t_json	= new StringBuilder();
+			Gson			t_gson	= new Gson();
+
+			t_json.append("{\"versionNumber\":" + p_<%firstLetterToLowerCase value = <%className%>%>.GetVersionNumber() + ",");
+
+<%endtext%>
+
+
+<%foreach node=column%>
+	<%first%>
+	<%else%>
+		<%text%>
+			t_json.append(',');
+<%endtext%>
+	<%endfirst%>
+
+	<%text%>			t_json.append("\"<%name%>\":");
+<%endtext%>
+
+
+	<%if <%isNullable%> = true %>
+
+		<%text%>			if (p_<%firstLetterToLowerCase value = <%^className%>%>.Get<%name%>() == null) {
+				t_json.append("null");
+			}
+			else {
+				<%tabMarker%><%endtext%>
+
+	<%else%>
+
+		<%text%>			<%tabMarker%><%endtext%>
+
+	<%endif%>
+
+
+	<%if <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = String %>
+		<%text%><%tabStop stopType = "marker" %>t_json.append(t_gson.toJson(p_<%firstLetterToLowerCase value = <%^className%>%>.Get<%name%>()));
+<%endtext%>
+
+	<%elseif  <%or  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+					<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime
+					<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate
+					<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime %> = true %>
+
+		<%text%>t_json.append('\"');
+		<%tabStop stopType = "marker" %>t_json.append(p_<%firstLetterToLowerCase value = <%^className%>%>.Get<%name%>().toString());
+		<%tabStop stopType = "marker" %>t_json.append('\"');
+<%endtext%>
+
+	<%else%>
+
+	<%text%>t_json.append(p_<%firstLetterToLowerCase value = <%^className%>%>.Get<%name%>());
+<%endtext%>
+
+	<%endif%>
+
+
+	<%if <%isNullable%> = true %>
+
+		<%text%>			}
+
+<%endtext%>
+
+	<%endif%>
+
+<%endfor%>
+
+
+<%text%>
+			<%customCode key="MarshalExtraMembers" openingCommentCharacters="//"%>
+
+			t_json.append("}");
+
+			return t_json.toString();
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("InOrder<%className%>Marshalling.Marshal(<%className%>) failed with error: ", t_error);
+			return null;
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public String Marshal(Collection<<%className%>> p_<%firstLetterToLowerCase value = <%className%>%>Collection) {
+		try {
+			StringBuilder t_json = new StringBuilder();
+			t_json.append("{\"<%className%>\":[");
+
+			boolean t_firstAdded = false;
+			for (<%className%> t_next<%className%>: p_<%firstLetterToLowerCase value = <%className%>%>Collection) {
+				if (t_firstAdded)
+					t_json.append(',');
+				else
+					t_firstAdded = true;
+
+				t_json.append(Marshal(t_next<%className%>));
+			}
+
+			t_json.append("]}");
+
+			return t_json.toString();
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("InOrder<%className%>Marshalling.Marshal(Collection<<%className%>>) failed with error: ", t_error);
+			return null;
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public <%className%> UnMarshal(String p_jsonString) {
+		try {
+			JsonParser	t_json			= new JsonParser();
+			JsonElement t_jsonElement;
+			JsonObject	t_jsonObject;
+
+			t_jsonElement	= t_json.parse(p_jsonString);
+			if (t_jsonElement == null)  {
+				Logger.LogError("InOrder<%className%>Marshalling.UnMarshal() failed to parse the json string:\n" + p_jsonString);
+				return null;
+			}
+
+			t_jsonObject	= t_jsonElement.getAsJsonObject();
+			if (t_jsonObject == null)  {
+				Logger.LogError("InOrder<%className%>Marshalling.UnMarshal() received an invalid json string:\n" + p_jsonString);
+				return null;
+			}
+
+			return UnMarshal(t_jsonObject);
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("InOrder<%className%>Marshalling.UnMarshal() failed with error: ", t_error);
+			return null;
+		}
+	}
+
+
+	//*********************************
+	public <%className%> UnMarshal(JsonObject p_jsonObject) {
+		try {
+			<%className%>							t_new<%className%>	= new <%className%>();
+			Set<Map.Entry<String,JsonElement>> 		t_memberSet			= p_jsonObject.entrySet();
+			Iterator<Map.Entry<String,JsonElement>>	t_memberIterator	= t_memberSet.iterator();
+			Map.Entry<String,JsonElement>			t_nextMemberEntry;
+			JsonElement								t_nextMemberValue;
+			String									t_value;
+
+
+			t_nextMemberEntry = t_memberIterator.next();
+			if (!t_nextMemberEntry.getKey().equalsIgnoreCase("versionNumber"))  {
+				Logger.LogError("InOrder<%className%>Marshalling.UnMarshal(JsonObject) expected member [versionNumber] but found [" + t_nextMemberEntry.getKey() + "].");
+				return null;
+			}
+
+			t_nextMemberValue = t_nextMemberEntry.getValue();
+			if (t_nextMemberValue.isJsonNull()) {
+				Logger.LogError("InOrder<%className%>Marshalling.UnMarshal(JsonObject) received an null for member [versionNumber].");
+				return null;
+			}
+
+			t_new<%className%>.SetVersionNumber(t_nextMemberValue.getAsInt());
+<%endtext%>
+
+
+<%foreach node=column%>
+
+	<%text%>
+
+			t_nextMemberEntry = t_memberIterator.next();
+			if (!t_nextMemberEntry.getKey().equalsIgnoreCase("<%name%>"))  {
+				Logger.LogError("InOrder<%^className%>Marshalling.UnMarshal(JsonObject) expected member [<%name%>] but found [" + t_nextMemberEntry.getKey() + "].");
+				return null;
+			}
+
+			t_nextMemberValue = t_nextMemberEntry.getValue();
+			if (t_nextMemberValue.isJsonNull()) {
+<%endtext%>
+
+	<%if <%isNullable%> = false %>
+
+		<%text%>				Logger.LogError("InOrder<%^className%>Marshalling.UnMarshal(JsonObject) received an null for member [<%name%>].");
+				return null;
+<%endtext%>
+
+	<%else%>
+
+		<%text%>				t_new<%^className%>.Set<%name%>(null);
+<%endtext%>
+
+	<%endif%>
+
+
+	<%text%>			}
+			else {
+				t_value = t_nextMemberValue.getAsString().strip();
+				if (t_value.startsWith("\""))	// The JSON parser doesn't strip the "'s off of the parameter value.
+					t_value = t_value.substring(1, t_value.length() - 1);
+
+				if (!t_new<%^className%>.Validate<%name%>Input(t_value, null)) {
+					Logger.LogError("InOrder<%^className%>Marshalling.UnMarshal(JsonObject) failed to validate the value [" + t_value + "] for member [<%name%>].");
+					return null;
+				}
+<%endtext%>
+
+
+	<%if  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime %>
+
+		<%text%>				else {
+					t_new<%^className%>.Set<%name%>(<%endtext%>
+
+	<%else%>
+
+		<%text%>				else if (!t_new<%^className%>.Set<%name%>(<%endtext%>
+
+
+	<%endif%>
+
+
+	<%if <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = String %>
+
+		<%text%>t_value<%endtext%>
+	<%elseif  <%or  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+					<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime
+					<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate
+					<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime %> = true %>
+
+		<%text%><%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %>.parse(t_value)<%endtext%>
+
+	<%else%>
+
+		<%text%>t_nextMemberValue.<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "jsonParseGetFunc" %>()<%endtext%>
+
+	<%endif%>
+
+		<%text%>)) {
+					Logger.LogError("InOrder<%^className%>Marshalling.UnMarshal(JsonObject) failed to set the value [" + t_value + "] for member [<%name%>].");
+					return null;
+				}
+			}
+<%endtext%>
+
+<%endfor%>
+
+
+<%text%>
+
+			<%customCode key="UnMarshalExtraMembers" openingCommentCharacters="//"%>
+
+
+			return t_new<%className%>;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("InOrder<%className%>Marshalling.UnMarshal(JsonObject) failed with error: ", t_error);
+			return null;
+		}
+	}
+
+
+	//*********************************
+	@Override
+	public LinkedList<<%className%>> UnMarshalList(String p_string) {
+		try {
+			JsonParser				t_jsonParser		= new JsonParser();
+			JsonElement				t_jsonElement		= t_jsonParser.parse(p_string);
+			JsonObject				t_jsonObject		= t_jsonElement.getAsJsonObject();
+			LinkedList<<%className%>>		t_results			= new LinkedList<<%className%>>();
+			<%className%>					t_new<%className%>;
+
+
+			JsonArray	t_jsonArray	= t_jsonObject.getAsJsonArray("<%className%>");
+			for (int i = 0; i < t_jsonArray.size(); ++i) {
+				t_new<%className%> = UnMarshal(t_jsonArray.get(i).getAsJsonObject());
+				if (t_new<%className%> == null) {
+					Logger.LogError("NodeRouteEntries.UnMarshalList() failed to unmarshal a [<%className%>] entry.");
+					return null;
+				}
+
+				t_results.add(t_new<%className%>);
+			}
+
+			return t_results;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("InOrder<%className%>Marshalling.UnMarshalList() failed with error: ", t_error);
+			return null;
+		}
+	}
+}
+<%endtext%>

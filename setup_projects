@@ -1,0 +1,11 @@
+
+
+# The command line parameters must be in the correct order.
+# Usage: ./setup_projects <code generator lib path> <root template file path>
+
+# i.e. ./setup_projects /home/kaylor/dev/projects/sandboxes/CodeGenerator/lib  /home/kaylor/dev/projects/sandboxes/ArchTemplates
+
+# NOTE: The CodeGeneratorConfig.xml is defaulted in the command line below.  If you copy this script to some other location, you will have to add the path to that file or make it a parameter, too.
+
+
+java -cp $1/coreutil.jar:$1/code_generator.jar codegenerator.generator.CodeGenerator_Main CodeGeneratorConfig.xml $2/project/project_setup.top.template project_setup.xml

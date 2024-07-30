@@ -1,0 +1,27 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+
+
+<%copyfile	sourceFilePath=<%root.global.rootTemplatesPath%>/project/generate_all	targetDirectory="<%root.global.rootOutputPath%>"	optionalMakeFileExecutable=true %>
+<%copyfile	sourceFilePath=<%root.global.rootTemplatesPath%>/project/build_all		targetDirectory="<%root.global.rootOutputPath%>"	optionalMakeFileExecutable=true %>
+
+
+<%foreach node=projects%>
+
+	<%foreach node=project%>
+
+		<%foreach node=builds%>
+
+			<%foreach node=build optionalCounterName = "build"%>
+
+				<%include template=<%rootProjectTemplatePath%>/project/project_setup.top.template %>
+
+
+			<%endfor%>
+
+		<%endfor%>
+
+	<%endfor%>
+
+<%endfor%>
+

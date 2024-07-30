@@ -1,0 +1,217 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+
+<%variable name = "interfacePrimaryKeyNames" evalmode = "set" %>
+
+	<%foreach node=column%>
+
+		<%if <%isPrimaryKey%> = true%>
+
+			<%text%><%name%><%endtext%>
+
+		<%endif%>
+
+	<%endfor%>
+
+<%endvariable%>
+
+
+<%variable name = "interfacePrimaryKeyParameters" evalmode = "set" %>
+
+	<%foreach node=column%>
+
+		<%if <%isPrimaryKey%> = true%>
+
+			<%first%>
+			<%else%>
+				<%text%>, <%endtext%>
+			<%endfirst%>
+
+			<%if  <%or	<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = String
+						<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+						<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime
+						<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate
+						<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime
+						<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[] %> = true %>
+
+				<%text%><%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %><%endtext%>
+
+			<%else%>
+
+				<%text%><%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "builtin" %><%endtext%>
+
+			<%endif%>
+
+			<%text%> p_<%firstLetterToLowerCase value = <%name%>%><%endtext%>
+
+		<%endif%>
+
+	<%endfor%>
+
+<%endvariable%>
+
+
+<%variable name = "foreignKeyInterfaceParameterType" evalmode = "set" %>
+
+	<%if  <%or	<%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %> = String
+				<%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %> = LocalDateTime
+				<%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %> = ZonedDateTime
+				<%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %> = LocalDate
+				<%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %> = LocalTime
+				<%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %> = byte[] %> = true %>
+
+		<%text%><%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %><%endtext%>
+
+	<%else%>
+
+		<%if <%and exists="^isNullable" <%^isNullable%>=true %> = true %>
+
+			<%text%><%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %><%endtext%>
+
+		<%else%>
+
+			<%text%><%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "builtin" %><%endtext%>
+
+		<%endif%>
+
+	<%endif%>
+
+<%endvariable%>
+
+
+<%variable name = "interfaceParameterType" evalmode = "set" %>
+
+	<%if  <%or	<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = String
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[] %> = true %>
+
+		<%text%><%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %><%endtext%>
+
+	<%else%>
+
+		<%if <%and exists="isNullable" <%isNullable%>=true %> = true %>
+
+			<%text%><%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %><%endtext%>
+
+		<%else%>
+
+			<%text%><%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "builtin" %><%endtext%>
+
+		<%endif%>
+
+	<%endif%>
+
+<%endvariable%>
+
+
+<%text%>/*
+ * This file was generated.
+ */
+
+package <%root.global.packageName%>.data_access_objects;
+
+
+
+import java.sql.*;
+import java.util.*;
+
+import <%root.global.packageName%>.value_objects.*;
+import archtemputils.database.DBConnectionManager.*;
+
+<%customCode key="<%className%>DAOImports" openingCommentCharacters="//"%>
+
+
+
+<%customCode key="<%className%>DAOComments" openingCommentCharacters="//"%>
+public interface <%className%>DAO {
+
+	<%customCode key="Statics" openingCommentCharacters="//"%>
+
+
+	public LinkedList<<%className%>> LoadAll<%className%>(String p_dbConnectionID);
+	public LinkedList<<%className%>> LoadAll<%className%>(ConnectionProxy p_dbConnection);
+
+	public <%className%> Load<%className%>For<%variable name = "interfacePrimaryKeyNames" evalmode = "evaluate" %>(<%variable name = "interfacePrimaryKeyParameters" evalmode = "evaluate" %>, String p_dbConnectionID);
+	public <%className%> Load<%className%>For<%variable name = "interfacePrimaryKeyNames" evalmode = "evaluate" %>(<%variable name = "interfacePrimaryKeyParameters" evalmode = "evaluate" %>, ConnectionProxy p_dbConnection);
+
+<%endtext%>
+
+
+<%foreach node=column%>
+
+	<%foreach node=foreignKey%>
+
+		<%text%>	public LinkedList<<%^^className%>> LoadAll<%^^className%>For<%^name%>(<%variable name = "foreignKeyInterfaceParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%^name%>%>, String p_dbConnectionID);
+	public LinkedList<<%^^className%>> LoadAll<%^^className%>For<%^name%>(<%variable name = "foreignKeyInterfaceParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%^name%>%>, ConnectionProxy p_dbConnection);
+<%endtext%>
+
+	<%endfor%>
+
+<%endfor%>
+
+
+<%foreach node=tableRelationship%>
+
+	<%text%>	public LinkedList<<%^className%>> LoadAll<%^className%>For<%parentColumnName%>Vector(<%variable name = "interfaceParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%parentColumnName%>%>, String p_dbConnectionID);
+	public LinkedList<<%^className%>> LoadAll<%^className%>For<%parentColumnName%>Vector(<%variable name = "interfaceParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%parentColumnName%>%>, ConnectionProxy p_dbConnection);
+<%endtext%>
+
+<%endfor%>
+
+
+<%text%>
+	<%customCode key=CustomLoaders openingCommentCharacters="//"%>
+
+	public LinkedList<<%className%>> Load<%className%>WithSQL(PreparedStatement p_preparedStatement, ConnectionProxy p_dbConnection);
+
+	public boolean Create<%className%>(<%className%> p_new<%className%>, String p_dbConnectionID);
+	public boolean Create<%className%>(<%className%> p_new<%className%>, ConnectionProxy p_dbConnection);
+
+	public boolean Update<%className%>(<%className%> p_target<%className%>, String p_dbConnectionID);
+	public boolean Update<%className%>(<%className%> p_target<%className%>, ConnectionProxy p_dbConnection);
+
+	// These standard deletes must be kept free of cascading or vector-related entanglements.  They should only do the base work of
+	// deleting the target object.  Logic for more complicated deletes should be put in other generated or custom delete functions below.
+	public boolean Delete<%className%>ForID(<%variable name = "interfacePrimaryKeyParameters" evalmode = "evaluate" %>, String p_dbConnectionID);
+	public boolean Delete<%className%>ForID(<%variable name = "interfacePrimaryKeyParameters" evalmode = "evaluate" %>, ConnectionProxy p_dbConnection);
+
+	public boolean Delete<%className%>(<%className%> p_target<%className%>, String p_dbConnectionID);
+	public boolean Delete<%className%>(<%className%> p_target<%className%>, ConnectionProxy p_dbConnection);
+<%endtext%>
+
+
+
+<%foreach node=column%>
+
+	<%if exists=foreignKey%>
+
+		<%first%>
+
+			<%text%>
+
+	// These deletes are used by cascading tree deletes to ensure that the caches are kept in synch with the db.  If you only rely on the foreign key cascades in the db, then the caches will be left with records that don't exist any more.
+<%endtext%>
+
+		<%endfirst%>
+
+		<%foreach node=foreignKey%>
+
+		<%text%>	public boolean Delete<%^^className%>For<%camelCase value = <%parentTableName%>%>ID(<%variable name = "foreignKeyInterfaceParameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%camelCase value = <%parentColumnName%>%>%>, ConnectionProxy p_dbConnection);
+<%endtext%>
+
+		<%endfor%>
+
+	<%endif%>
+
+<%endfor%>
+
+
+
+<%text%>
+
+	<%customCode key=Miscellaneous openingCommentCharacters="//"%>
+}
+<%endtext%>

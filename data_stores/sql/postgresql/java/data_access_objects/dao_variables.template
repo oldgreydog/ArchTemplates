@@ -1,0 +1,144 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+
+<%variable name = "dbPrimaryKeyNames" evalmode = "set" %>
+
+	<%foreach node=column%>
+
+		<%if <%isPrimaryKey%> = true%>
+			<%text%><%name%><%endtext%>
+		<%endif%>
+
+	<%endfor%>
+
+<%endvariable%>
+
+
+<<< We only use this variable where we are getting the IDs for vectors, so by default, there is only ever one primary key for tables that participate in vectors.  That's why this only returns the "first" primary key function name.
+<%variable name = "cachePrimaryKeyGetFunction" evalmode = "set" %>
+
+	<%foreach node=column%>
+
+		<%if <%isPrimaryKey%> = true%>
+
+			<%first%>
+				<%text%>Get<%name%>()<%endtext%>
+			<%endfirst%>
+
+		<%endif%>
+
+	<%endfor%>
+
+<%endvariable%>
+
+
+<%variable name = "dbPrimaryKeyForwardParameters" evalmode = "set" %>
+
+	<%foreach node=column%>
+
+		<%if <%isPrimaryKey%> = true%>
+
+			<%first%>
+			<%else%>
+				<%text%>, <%endtext%>
+			<%endfirst%>
+
+			<%text%>p_<%firstLetterToLowerCase value = <%name%>%><%endtext%>
+
+		<%endif%>
+
+	<%endfor%>
+
+<%endvariable%>
+
+
+<%variable name = "dbPrimaryKeyParameters" evalmode = "set" %>
+
+	<%foreach node=column%>
+
+		<%if <%isPrimaryKey%> = true%>
+
+			<%first%>
+			<%else%>
+				<%text%>, <%endtext%>
+			<%endfirst%>
+
+			<%if  <%or	<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = String
+						<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+						<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime
+						<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate
+						<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime
+						<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[] %> = true %>
+
+				<%text%><%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %><%endtext%>
+
+			<%else%>
+
+				<%text%><%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "builtin" %><%endtext%>
+
+			<%endif%>
+
+			<%text%> p_<%firstLetterToLowerCase value = <%name%>%><%endtext%>
+
+		<%endif%>
+
+	<%endfor%>
+
+<%endvariable%>
+
+
+<%variable name = "foreignKeyDBParameterType" evalmode = "set" %>
+
+	<%if  <%or	<%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %> = String
+				<%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %> = LocalDateTime
+				<%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %> = ZonedDateTime
+				<%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %> = LocalDate
+				<%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %> = LocalTime
+				<%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %> = byte[] %> = true %>
+
+		<%text%><%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %><%endtext%>
+
+	<%else%>
+
+		<%if <%and exists="^isNullable" <%^isNullable%>=true %> = true %>
+
+			<%text%><%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "object" %><%endtext%>
+
+		<%else%>
+
+			<%text%><%typeConvert targetLanguage = "java" sourceType = <%^type%> groupID = "builtin" %><%endtext%>
+
+		<%endif%>
+
+	<%endif%>
+
+<%endvariable%>
+
+
+<%variable name = "dbParameterType" evalmode = "set" %>
+
+	<%if  <%or	<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = String
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[] %> = true %>
+
+		<%text%><%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %><%endtext%>
+
+	<%else%>
+
+		<%if <%and exists="isNullable" <%isNullable%>=true %> = true %>
+
+			<%text%><%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %><%endtext%>
+
+		<%else%>
+
+			<%text%><%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "builtin" %><%endtext%>
+
+		<%endif%>
+
+	<%endif%>
+
+<%endvariable%>
+

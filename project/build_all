@@ -1,0 +1,59 @@
+
+
+# This file can be copied to any parent directory that has build content itself and/or needs to recurse into its child directories to propagate the build.
+
+
+# This seemed the easiest way to add on pre-build stuff such as moving files or doing packaging, etc.
+# You can add a script file called "build_pre" anywhere in the tree that you want so that you can do anything necessary at that level.
+if [ -f build_pre ]; then
+	source build_pre $@
+	if [ $? != 0 ] ; then
+		printf "Error: [build_pre $@] at [$(pwd)] failed.\n"
+		exit $?
+	fi
+fi
+
+
+# This will loop through any child directories and call either build or build_all if they exist.
+# Grabbed this directory loop from:  https://stackoverflow.com/questions/15854559/looping-over-directories-in-bash
+for path in ./*; do
+	[ -d "${path}" ] || continue # if not a directory, skip
+	dirname="$(basename "${path}")"
+
+	pushd $dirname > /dev/null
+
+
+	# These commands will execute a local "build" file and/or recurse down the tree depending on what build/build_all files it finds.
+	if [ -f build ]; then
+		source build $@
+		if [ $? != 0 ] ; then
+			printf "Error: [build $@] at [$(pwd)] failed.\n"
+			popd > /dev/null
+			exit $?
+		fi
+	elif [ -f build_all ]; then
+		source build_all $@
+		if [ $? != 0 ] ; then
+			printf "Error: [build_all $@] at [$(pwd)] failed.\n"
+			popd > /dev/null
+			exit $?
+		fi
+	fi
+
+
+	popd > /dev/null
+	echo
+done
+
+
+
+
+# This seemed the easiest way to add on post-build stuff such as moving files or doing packaging, etc.
+# You can add a script file called "build_post" anywhere in the tree that you want so that you can do anything necessary at that level.
+if [ -f build_post ]; then
+	source build_post $@
+	if [ $? != 0 ] ; then
+		printf "Error: [build_post $@] at [$(pwd)] failed.\n"
+		exit $?
+	fi
+fi

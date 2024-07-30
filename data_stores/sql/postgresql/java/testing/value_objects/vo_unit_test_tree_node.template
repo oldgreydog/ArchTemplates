@@ -1,0 +1,60 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+<%tabSettings tabLength = "4" outputType = "tabs" %>
+
+
+<%text%>/*
+ * This file was generated.
+ */
+
+package <%root.global.projectName%>.testing.unit.value_objects;
+
+
+
+import <%root.global.projectName%>.testing.unit.value_objects.*;
+import systemtest.testframework.*;
+
+<%customCode key="<%root.global.projectName%>VOUnitTestsImports" openingCommentCharacters="//"%>
+
+
+
+
+public class <%root.global.projectName%>VOUnitTestsNode extends TestTreeNode {
+
+
+	//*********************************
+	/**
+	* This default constructor is for the true root node.  All child nodes will receive a parent reference throught the constructor below.
+	*/
+	public <%root.global.projectName%>VOUnitTestsNode() {
+		super(null, "VO Member Validation Tests");
+
+		Init();
+	}
+
+
+	//*********************************
+	public <%root.global.projectName%>VOUnitTestsNode(TestTreeNode p_parent) {
+		super(p_parent, "VO Member Validation Tests");
+
+		Init();
+	}
+
+
+	//*********************************
+	private void Init() {
+<%endtext%>
+
+<%foreach node=table%>
+	<%text%>		m_children.add(new <%className%>MemberValidationTest(this));
+<%endtext%>
+
+<%endfor%>
+
+
+<%text%>	}
+
+
+}
+<%endtext%>
+

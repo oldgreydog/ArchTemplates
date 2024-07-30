@@ -1,0 +1,16 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+<%tabSettings tabLength = "4" outputType = "tabs" %>
+
+
+<%text%>
+
+# This file was generated.
+
+
+
+# This starts the GUI version of the test code.
+
+java -cp ../../../lib/java/coreutil.jar:../../../lib/java/java_testing_core.jar:../../../<%root.global.projectName%>/java/lib/<%root.global.projectName%>.jar:../../../<%root.global.projectName%>/java/lib/<%root.global.projectName%>_testing.jar:../../../lib/java/archtemputil_database.jar:../../../lib/java/archtemputil_misc.jar:../../../lib/java/archtemputil_network.jar:../../../lib/java/archtemputil_threads.jar:../../../lib/java/gson-2.10.1.jar:../../../lib/java/postgresql-42.7.2.jar  systemtest.TestMain   TestingConfig.xml   <%root.global.projectName%>UnitTestConfig.xml   ../<%root.global.projectName%>DAOConfig.xml
+
+<%endtext%>

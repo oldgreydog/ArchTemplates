@@ -1,0 +1,29 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+<%tabSettings tabLength = "4" outputType = "tabs" %>
+
+
+
+<%text%><?xml version="1.0" encoding="UTF-8"?>
+<!-- This file was generated.  Edits outside custom code blocks WILL be lost on regeneration -->
+
+<Node name="root">
+
+	<Node name="daoTypes">
+
+		<Node name="<%firstLetterToLowerCase value = <%root.global.databaseName%>%>" description="client,cached,db">
+<%endtext%>
+
+
+<%foreach node=table%>
+<%text%>			<Value name="<%className%>DAO"	<%tabStop stopType = "stop" offset = "48" %>>db</Value>
+<%endtext%>
+<%endfor%>
+
+
+<%text%>		</Node>
+
+	</Node>
+
+</Node>
+<%endtext%>

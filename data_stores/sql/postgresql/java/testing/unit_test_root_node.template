@@ -1,0 +1,54 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+<%tabSettings tabLength = "4" outputType = "tabs" %>
+
+
+<%text%>/*
+ * This file was generated.
+ */
+
+package <%root.global.projectName%>.testing.unit;
+
+
+
+import <%root.global.projectName%>.testing.unit.value_objects.*;
+import <%root.global.projectName%>.testing.unit.daos.*;
+import systemtest.testframework.*;
+
+
+
+
+public class <%root.global.projectName%>UnitTests extends TestTreeNode {
+
+
+	//*********************************
+	/**
+	* This default constructor is for the true root node.  All child nodes will receive a parent reference throught the constructor below.
+	*/
+	public <%root.global.projectName%>UnitTests() {
+		super(null, "<%root.global.projectName%>");
+
+		Init();
+	}
+
+
+	//*********************************
+	public <%root.global.projectName%>UnitTests(TestTreeNode p_parent) {
+		super(p_parent, "<%root.global.projectName%>");
+
+		Init();
+	}
+
+
+	//*********************************
+	private void Init() {
+		m_children.add(new <%root.global.projectName%>VOUnitTestsNode(this));
+		m_children.add(new <%root.global.projectName%>DAOUnitTestsNode(this));
+
+		<%customCode key="<%root.global.projectName%>UnitTestsInit" openingCommentCharacters="//"%>
+	}
+
+
+}
+<%endtext%>
+

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- This is a default file that is provided for use with the testing code.  Since nothing is protected
+by a custom code block and this file is copied here and not generated, then any changes you make here
+can be blown away if you are generating on top of your working project directories.  That is why I
+recommend that you generate to a separate directory tree and merge into your working tree with a
+good diff tool like BeyondCompare. -->
+
+<Node name="root">
+	<Value name="WriteLogsToFile">true</Value>
+	<Value name="LogDirectory">logs</Value>
+
+	<Node name="testConfig">
+		<Value name="defaultTestMode" description="cl,gui" >gui</Value>
+	</Node>
+
+
+	<Node name="logging">
+		<Value name="timezone" description="local,zulu" >local</Value>
+
+		<Node name="logTargets">
+			<Value name="target">coreutil.logging.ConsoleLogger</Value>
+			<Value name="target">coreutil.logging.FileLogger</Value>
+		</Node>
+
+		<Node name="consoleLogger">
+			<Value name="maxLoggingLevel">50</Value>
+		</Node>
+		<Node name="fileLogger">
+			<Value name="logDirectory">logs</Value>
+			<Value name="appFileNamePrefix">Testing</Value>
+			<Value name="maxLoggingLevel">50</Value>
+		</Node>
+		<Node name="wrapperlogger">
+			<Value name="maxLoggingLevel">50</Value>
+		</Node>
+	</Node>
+
+
+</Node>
+

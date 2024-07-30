@@ -1,0 +1,33 @@
+
+
+# This file can be copied to any parent directory that has no content itself but does need to recurse into its child directories to propagate the generate.
+
+# This will loop through any child directories and call either generate or generate_all if they exist.
+# Grabbed this directory loop from:  https://stackoverflow.com/questions/15854559/looping-over-directories-in-bash
+for path in ./*; do
+	[ -d "${path}" ] || continue # if not a directory, skip
+	dirname="$(basename "${path}")"
+
+	pushd $dirname > /dev/null
+
+	# I'm setting this up so that it will traverse the directory tree and first execute any "generate" file it finds...
+	if [ -f generate ]; then
+		source generate
+		if [ $? != 0 ] ; then
+			printf "Error: generate at $(pwd) failed.\n"
+			exit $?
+		fi
+	fi
+
+	# and then it will execute a "generate_all" if it finds it to continue the recursive desent into the tree.
+	if [ -f generate_all ]; then
+		source generate_all
+		if [ $? != 0 ] ; then
+			printf "Error: generate_all at $(pwd) failed.\n"
+			exit $?
+		fi
+	fi
+
+	popd > /dev/null
+	echo
+done

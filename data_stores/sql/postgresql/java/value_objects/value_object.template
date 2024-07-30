@@ -1,0 +1,674 @@
+%%HEADER%% openingDelimiter=<% closingDelimiter=%>
+
+<%tabSettings tabLength = "4" outputType = "tabs" %>
+
+
+
+<%variable name = "parameterType" evalmode = "set" %>
+
+	<%if  <%or	<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = String
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[] %> = true %>
+
+		<%text%><%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %><%endtext%>
+
+	<%else%>
+
+		<%if <%and exists="isNullable" <%isNullable%>=true %> = true %>
+
+			<%text%><%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %><%endtext%>
+
+		<%else%>
+
+			<%text%><%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "builtin" %><%endtext%>
+
+		<%endif%>
+
+	<%endif%>
+
+<%endvariable%>
+
+
+
+<%text%>/*
+ * This file was generated.
+ */
+
+package <%root.global.packageName%>.value_objects;
+
+
+
+import java.sql.*;
+import java.time.*;
+
+import coreutil.logging.*;
+import archtemputils.database.*;
+import coreutil.misc.*;
+
+<%customCode key="<%className%>Imports" openingCommentCharacters="//"%>
+
+
+
+public class <%className%> extends VO_Interface {
+
+	// Static members
+	static private String	s_columnList;
+
+
+	// This static initializer block will initialize the m_columnList value.
+	static {
+		StringBuilder t_columnList = new StringBuilder();
+
+<%endtext%>
+
+<%foreach node=column%>
+
+	<%first%>
+
+		<%text%>		t_columnList.append("<%sqlName%>");
+<%endtext%>
+
+	<%else%>
+
+		<%text%>		t_columnList.append(", <%sqlName%>");
+<%endtext%>
+
+	<%endfirst%>
+
+<%endfor%>
+
+<%text%>
+		s_columnList = t_columnList.toString();
+	}
+
+	<%customCode key="<%className%>Statics" openingCommentCharacters="//"%>
+
+
+	// Data Members
+<%endtext%>
+
+<%foreach node=column%>
+
+	<%if  <%or	<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = String
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[] %> = true %>
+
+			<%text%>	private	<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %>	<%tabStop stopType = "stop" offset = "32" %>m_<%firstLetterToLowerCase value = <%name%>%>;
+<%endtext%>
+
+	<%else%>
+
+		<%if <%isNullable%> = true%>
+
+			<%text%>	private	<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %>	<%tabStop stopType = "stop" offset = "32" %>m_<%firstLetterToLowerCase value = <%name%>%>;
+<%endtext%>
+
+		<%else%>
+
+			<%if <%and <%isPrimaryKey%>				= true
+						exists						= isKeyGenerated
+						<%isKeyGenerated%>			= true
+						<%not exists=foreignKey%>	= true %> = true%>
+
+			<%text%>	private	<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "builtin" %>	<%tabStop stopType = "stop" offset = "32" %>m_<%firstLetterToLowerCase value = <%name%>%>	<%tabStop stopType = "stop" offset = "52" %>= -1;
+<%endtext%>
+
+			<%else%>
+
+			<%text%>	private	<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "builtin" %>	<%tabStop stopType = "stop" offset = "32" %>m_<%firstLetterToLowerCase value = <%name%>%>;
+<%endtext%>
+
+			<%endif%>
+
+		<%endif%>
+
+	<%endif%>
+
+
+<%endfor%>
+
+<%text%>
+	<%customCode key="<%className%>ExtraMembers" openingCommentCharacters="//"%>
+
+
+	//*********************************
+	public <%className%>() {
+		super();
+	}
+
+
+	//*********************************
+	public <%className%>(<%className%> p_other<%className%>) {
+		super(p_other<%className%>);
+
+<%endtext%>
+
+<%foreach node=column%>
+	<%text%>		m_<%firstLetterToLowerCase value = <%name%>%>	<%tabStop stopType = "stop" offset = "28" %>= p_other<%^className%>.m_<%firstLetterToLowerCase value = <%name%>%>;
+<%endtext%>
+<%endfor%>
+
+<%text%>
+		<%customCode key="<%className%>CopyConstructor" openingCommentCharacters="//"%>
+
+	}
+
+
+	//*********************************
+	public <%className%>(<%tabMarker%><%endtext%>
+
+<%foreach node=column %>
+
+	<%if <%not <%and exists=isKeyGenerated <%isKeyGenerated%> = true %> = true %> = true %>
+
+		<%first%>
+		<%else%>
+			<%text%>,
+<%tabStop stopType = "marker" %><%endtext%>
+		<%endfirst%>
+
+		<%text%><%variable name = "parameterType" evalmode = "evaluate" %>	<%tabStop stopType = "marker" offset = "12" %>p_<%firstLetterToLowerCase value = <%name%>%><%endtext%>
+
+	<%endif%>
+
+<%endfor%>
+
+
+<%text%>)
+	{
+		super();
+
+<%endtext%>
+
+<%foreach node=column%>
+
+	<%if <%not <%and exists=isKeyGenerated <%isKeyGenerated%> = true %> = true %> = true %>
+
+		<%if <%isNullable%> = true%>
+
+			<%text%>
+		if (p_<%firstLetterToLowerCase value = <%name%>%> == null)
+			m_<%firstLetterToLowerCase value = <%name%>%>	<%tabStop stopType = "stop" offset = "28" %>= null;
+		else
+	<%endtext%>
+
+		<%endif%>
+
+		<%text%>		m_<%firstLetterToLowerCase value = <%name%>%>	<%tabStop stopType = "stop" offset = "28" %>= p_<%firstLetterToLowerCase value = <%name%>%>;
+<%endtext%>
+
+		<%if <%isNullable%> = true%>
+
+			<%text%>
+<%endtext%>
+
+		<%endif%>
+
+	<%endif%>
+
+<%endfor%>
+
+<%text%>
+		<%customCode key="<%className%>MemberConstructor" openingCommentCharacters="//"%>
+
+	}
+
+
+	<%customCode key="<%className%>CustomConstructors" openingCommentCharacters="//"%>
+
+
+	//*********************************
+	public boolean MergeChanges(<%className%> p_changed<%className%>) throws Exception
+	{
+		boolean t_changesFound = false;
+
+		// If these are the same object, then we will assume that one or more changes were made by local code.
+		if (this == p_changed<%className%>)
+			return true;
+
+		if (!m_isMutable)
+			throw new Exception("<%className%>.MergeChanges() failed because this target instance is marked as immutable.");	// I normally don't ever use exceptions, but I need this to blow up hard so that it's a really visible, must-fix bug.
+
+		if (m_versionNumber > p_changed<%className%>.m_versionNumber) {
+			Logger.LogError("<%className%>.MergeChanges() failed because the local version number is greater than the passed in object's.");
+			return false;
+		}
+		else if (m_versionNumber < p_changed<%className%>.m_versionNumber) {
+			t_changesFound	= true;
+			m_versionNumber	= p_changed<%className%>.m_versionNumber;
+		}
+
+<%endtext%>
+
+<%foreach node=column%>
+
+	<%text%>
+		if (<%endtext%>
+
+		<%if <%isNullable%> = true%>
+
+			<%text%>(((m_<%firstLetterToLowerCase value = <%name%>%> == null) && (p_changed<%^className%>.m_<%firstLetterToLowerCase value = <%name%>%> != null)) ||
+			 ((m_<%firstLetterToLowerCase value = <%name%>%> != null) && (p_changed<%^className%>.m_<%firstLetterToLowerCase value = <%name%>%> == null))) ||
+			<%endtext%>
+
+		<%endif%>
+
+		<%if  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = String%>
+
+			<%text%>((m_<%firstLetterToLowerCase value = <%name%>%> != null) && (p_changed<%^className%>.m_<%firstLetterToLowerCase value = <%name%>%> != null)) &&
+			 !m_<%firstLetterToLowerCase value = <%name%>%>.equals(p_changed<%^className%>.m_<%firstLetterToLowerCase value = <%name%>%>)<%endtext%>
+
+		<%elseif  <%or  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+						<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime
+						<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate
+						<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime %> = true %>
+
+			<%text%>((m_<%firstLetterToLowerCase value = <%name%>%> != null) && (p_changed<%^className%>.m_<%firstLetterToLowerCase value = <%name%>%> != null)) &&
+			 (m_<%firstLetterToLowerCase value = <%name%>%>.compareTo(p_changed<%^className%>.m_<%firstLetterToLowerCase value = <%name%>%>) != 0)<%endtext%>
+
+		<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[]%>
+
+			<%text%>false	/* Byte[] comparisons are not supported. */<%endtext%>
+
+		<%else%>
+
+			<%text%>m_<%firstLetterToLowerCase value = <%name%>%> != p_changed<%^className%>.m_<%firstLetterToLowerCase value = <%name%>%><%endtext%>
+
+		<%endif%>
+
+		<%if <%isPrimaryKey%> = true%>
+
+			<%text%>)
+		{
+			Logger.LogError("<%^className%>.MergeChanges() failed because the primary key column [<%sqlName%>] has non-matching values.");
+			return false;
+		}
+<%endtext%>
+
+		<%else%>
+
+			<%text%>)
+		{
+			t_changesFound = true;
+			m_<%firstLetterToLowerCase value = <%name%>%> = p_changed<%^className%>.m_<%firstLetterToLowerCase value = <%name%>%>;
+		}
+<%endtext%>
+
+		<%endif%>
+
+<%endfor%>
+
+<%text%>
+		return t_changesFound;
+	}
+<%endtext%>
+
+<%foreach node=column%>
+	<%text%>
+
+	//===========================================
+	/**
+	*
+	* @param p_errorMessagesReturn	Optional (can be NULL).
+	*/
+	public boolean Validate<%name%>Input(String p_<%firstLetterToLowerCase value = <%name%>%>, StringBuilder p_errorMessagesReturn) {
+		String t_newValue = (p_<%firstLetterToLowerCase value = <%name%>%> != null) ? p_<%firstLetterToLowerCase value = <%name%>%>.trim() : null;
+		if ((t_newValue == null) || t_newValue.isBlank()) {
+<%endtext%>
+	<%if <%isNullable%> = false%>
+		<%text%>			Logger.LogError("<%^className%>.Validate<%name%>Input() : this value is not nullable.");
+			if (p_errorMessagesReturn != null)
+				p_errorMessagesReturn.append("<%^className%>.<%name%> is not nullable.");
+			return false;
+<%endtext%>
+	<%else%>
+		<%text%>			return true;	// If this field is nullable and the passed in value is NULL, then we are done.
+<%endtext%>
+	<%endif%>
+
+	<%text%>		}
+
+		try {
+<%endtext%>
+
+	<%if  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = String%>
+
+		<%text%>			if (t_newValue.length() > <%valueMaxSize%>) {
+				Logger.LogError("<%^className%>.Validate<%name%>Input() : the value [" + t_newValue + "] is too large for the column [<%sqlName%>] which has a max size of [<%valueMaxSize%>].");
+				if (p_errorMessagesReturn != null)
+					p_errorMessagesReturn.append("<%^className%>.<%name%> has a max size of [<%valueMaxSize%>].");
+				return false;
+			}
+<%endtext%>
+
+	<%elseif  <%or  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+					<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime
+					<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate
+					<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime %> = true %>
+
+		<%text%>			// A LocalDateTime or ZonedDateTime value should be correct out of the widget.
+<%endtext%>
+
+	<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[]%>
+
+		<%text%>			// No validation can be done for a byte array.
+<%endtext%>
+
+	<%else%>
+
+		<%text%>			<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> t_testValue = <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "objectParseFunc" %>(t_newValue);
+<%endtext%>
+
+	<%endif%>
+
+<%text%>
+			<%customCode key="<%^className%>Validate<%name%>Input" openingCommentCharacters="//"%>
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%^className%>.Validate<%name%>Input() failed with error: ", t_error);
+			if (p_errorMessagesReturn != null)
+				p_errorMessagesReturn.append("<%^className%>.<%name%> is invalid: " + t_error);
+			return false;
+		}
+
+		return true;
+	}
+
+
+	//*********************************
+	public boolean Set<%name%>(<%variable name = "parameterType" evalmode = "evaluate" %> p_<%firstLetterToLowerCase value = <%name%>%>) throws Exception {
+		if (!m_isMutable)
+			throw new Exception("<%^className%>.Set<%name%>() failed because this target instance is marked as immutable.");	// I normally don't ever use exceptions, but I need this to blow up hard so that it's a really visible, must-fix bug.
+
+<%endtext%>
+
+
+	<%if  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = String%>
+
+		<%text%>		if (p_<%firstLetterToLowerCase value = <%name%>%> != null) {
+<%endtext%>
+
+		<%if <%isNullable%> = false%>
+
+			<%text%>			if (p_<%firstLetterToLowerCase value = <%name%>%>.isBlank()) {
+				Logger.LogError("<%^className%>.Set<%name%>() : this column is not nullable and therefore can not be set with an empty value.");
+				return false;
+			}
+
+<%endtext%>
+
+		<%endif%>
+
+		<%text%>			String t_newValue = p_<%firstLetterToLowerCase value = <%name%>%>.trim();
+			if (p_<%firstLetterToLowerCase value = <%name%>%>.length() > <%valueMaxSize%>) {
+				t_newValue = p_<%firstLetterToLowerCase value = <%name%>%>.substring(0, <%valueMaxSize%>);
+				Logger.LogError("<%^className%>.Set<%name%>() : the value [" + p_<%firstLetterToLowerCase value = <%name%>%> + "] is too large for the column [<%sqlName%>] which has a max size of [<%valueMaxSize%>].  It will be truncated to [" + t_newValue + "].");
+			}
+
+			<%customCode key="<%^className%>Set<%name%>AlterString" openingCommentCharacters="//"%>
+
+
+			m_<%firstLetterToLowerCase value = <%name%>%> = t_newValue;
+		}
+<%endtext%>
+
+		<%if <%isNullable%> = true%>
+
+			<%text%>		else {
+			m_<%firstLetterToLowerCase value = <%name%>%> = null;
+		}
+<%endtext%>
+
+		<%else%>
+
+			<%text%>		else {
+			Logger.LogError("<%^className%>.Set<%name%>() : this value is not nullable.");
+			return false;
+		}
+<%endtext%>
+
+		<%endif%>
+
+	<%else%>
+
+		<%if  <%or	<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+					<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime
+					<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate
+					<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime
+					<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[] %> = true %>
+
+			<%if <%isNullable%> = false%>
+
+				<%text%>		if (p_<%firstLetterToLowerCase value = <%name%>%> == null) {
+			Logger.LogError("<%^className%>.Set<%name%>() : this column is not nullable and therefore can not be set with an empty value.");
+			return false;
+		}
+
+<%endtext%>
+
+			<%else%>
+
+				<%text%>		if (p_<%firstLetterToLowerCase value = <%name%>%> == null) {
+			m_<%firstLetterToLowerCase value = <%name%>%> = null;
+			return true;
+		}
+
+<%endtext%>
+
+			<%endif%>
+
+		<%endif%>
+
+
+		<%text%>		<%customCode key="<%^className%>Set<%name%>Validation" openingCommentCharacters="//"%>
+
+<%endtext%>
+
+
+		<%if  <%or	<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+					<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime
+					<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate
+					<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime %> = true %>
+
+			<%text%>		m_<%firstLetterToLowerCase value = <%name%>%> = p_<%firstLetterToLowerCase value = <%name%>%>;
+<%endtext%>
+
+		<%else%>
+
+			<%text%>		m_<%firstLetterToLowerCase value = <%name%>%> = p_<%firstLetterToLowerCase value = <%name%>%>;
+<%endtext%>
+
+		<%endif%>
+
+	<%endif%>
+
+
+	<%text%>
+		return true;
+	}
+
+
+	//*********************************
+	public <%endtext%>
+
+	<%if <%isNullable%> = true%>
+
+		<%text%><%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %><%endtext%>
+
+	<%else%>
+
+		<%text%><%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "builtin" %><%endtext%>
+
+	<%endif%>
+
+	<%text%> Get<%name%>() {
+		return m_<%firstLetterToLowerCase value = <%name%>%>;
+	}
+<%endtext%>
+
+<%endfor%>
+
+
+<%text%>
+
+	//*********************************
+	@Override
+	public String GetColumnValueAsString(String p_columnName) {
+		try {
+<%endtext%>
+
+<%foreach node=column%>
+
+	<%first%>
+
+		<%text%>			<%endtext%>
+
+	<%else%>
+
+		<%text%>			else <%endtext%>
+
+	<%endfirst%>
+
+
+	<%text%>if (p_columnName.equals("<%sqlName%>"))
+				return <%endtext%>
+
+	<%if  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = String%>
+
+		<%text%>((m_<%firstLetterToLowerCase value = <%name%>%> != null) ? m_<%firstLetterToLowerCase value = <%name%>%> : "")<%endtext%>
+
+	<%elseif  <%or	<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+					<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime %> = true %>
+
+		<%text%>((m_<%firstLetterToLowerCase value = <%name%>%> != null) ? StringUtilities.FormatDateTime(m_<%firstLetterToLowerCase value = <%name%>%>, "-", false) : "")<%endtext%>
+
+	<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate %>
+
+		<%text%>((m_<%firstLetterToLowerCase value = <%name%>%> != null) ? StringUtilities.FormatDate(m_<%firstLetterToLowerCase value = <%name%>%>) : "")<%endtext%>
+
+	<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime%>
+
+		<%text%>((m_<%firstLetterToLowerCase value = <%name%>%> != null) ? m_<%firstLetterToLowerCase value = <%name%>%>.toString() : "")<%endtext%>
+
+	<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[]%>
+
+		<%text%>null<%endtext%>
+
+	<%else%>
+
+		<%if <%isNullable%> = true%>
+
+			<%text%>((m_<%firstLetterToLowerCase value = <%name%>%> != null) ? m_<%firstLetterToLowerCase value = <%name%>%>.toString() : "")<%endtext%>
+
+		<%else%>
+
+			<%text%><%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %>.toString(m_<%firstLetterToLowerCase value = <%name%>%>)<%endtext%>
+
+		<%endif%>
+
+	<%endif%>
+
+	<%text%>;
+<%endtext%>
+
+<%endfor%>
+
+<%text%>
+			Logger.LogError("<%className%>.GetColumnValueAsString() received an unknown column name [" + p_columnName + "].");
+			return null;
+		}
+		catch (Throwable t_error) {
+			Logger.LogException("<%className%>.GetColumnValueAsString() failed with error: ", t_error);
+			return null;
+		}
+	}
+
+
+	<%customCode key="<%className%>ExtraMembersMutators" openingCommentCharacters="//"%>
+
+
+	//*********************************
+	@Override
+	public String toString() {
+		StringBuilder t_result = new StringBuilder();
+		t_result.append("Table name : <%sqlName%>\n");
+<%endtext%>
+
+<%foreach node=column%>
+	<%if  <%or	<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+				<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime %> = true %>
+
+		<%text%>		t_result.append("<%sqlName%> : " + ((m_<%firstLetterToLowerCase value = <%name%>%> != null) ? StringUtilities.FormatDateTime(m_<%firstLetterToLowerCase value = <%name%>%>, "-", false) : "") + "\n");
+<%endtext%>
+
+	<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate %>
+
+		<%text%>		t_result.append("<%sqlName%> : " + ((m_<%firstLetterToLowerCase value = <%name%>%> != null) ? StringUtilities.FormatDate(m_<%firstLetterToLowerCase value = <%name%>%>) : "") + "\n");
+<%endtext%>
+
+	<%elseif  <%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime %>
+
+		<%text%>		t_result.append("<%sqlName%> : " + ((m_<%firstLetterToLowerCase value = <%name%>%> != null) ? StringUtilities.FormatTime(m_<%firstLetterToLowerCase value = <%name%>%>) : "") + "\n");
+<%endtext%>
+
+	<%else%>
+
+		<%text%>		t_result.append("<%sqlName%> : " + m_<%firstLetterToLowerCase value = <%name%>%> + "\n");
+<%endtext%>
+
+	<%endif%>
+
+<%endfor%>
+
+<%text%>
+		return t_result.toString();
+	}
+
+
+	//===========================================
+	static public String GetColumnList() {
+		return s_columnList;
+	}
+
+
+	//*********************************
+	public boolean ValidateBeforeSave()
+	{
+		boolean t_noError = true;
+
+<%endtext%>
+
+<%foreach node=column%>
+
+	<%if <%and  <%isNullable%> = false
+				<%or	<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = String
+						<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDateTime
+						<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = ZonedDateTime
+						<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalDate
+						<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = LocalTime
+						<%typeConvert targetLanguage = "java" sourceType = <%type%> groupID = "object" %> = byte[] %> = true %> = true %>
+
+			<%text%>		if (m_<%firstLetterToLowerCase value = <%name%>%> == null) {
+			Logger.LogError("<%^className%>.<%sqlName%> cannot be NULL.");
+			t_noError = false;
+		}
+
+<%endtext%>
+
+	<%endif%>
+
+<%endfor%>
+
+<%text%>		return t_noError;
+	}
+
+
+	<%customCode key=Miscellaneous openingCommentCharacters="//"%>
+}
+<%endtext%>

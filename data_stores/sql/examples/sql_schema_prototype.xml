@@ -1,0 +1,1561 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!--
+	Here is a sample table that includes examples of both the foreignKey node and the index node.
+
+	<Node name="table">
+		<Value name="className">Task</Value>
+		<Value name="sqlName">TASK</Value>
+
+		<Node name="column">
+			<Value name="name">TaskId</Value>
+			<Value name="sqlName">TASK_ID</Value>
+			<Value name="type">bigint</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="name">CreatedTs</Value>
+			<Value name="sqlName">CREATED_TS</Value>
+			<Value name="type">timestamp</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="name">LastModifiedTs</Value>
+			<Value name="sqlName">LAST_MODIFIED_TS</Value>
+			<Value name="type">timestamp</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+
+		<Node name="column">
+			<Value name="name">TaskTypeId</Value>
+			<Value name="sqlName">TASK_TYPE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="name">StatusId</Value>
+			<Value name="sqlName">STATUS_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+
+		<Node name="column">
+			<Value name="name">ParentTaskId</Value>
+			<Value name="sqlName">PARENT_TASK_ID</Value>
+			<Value name="type">bigint</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">TASK</Value>
+				<Value name="parentColumnName">TASK_ID</Value>
+			</Node>
+		</Node>
+
+		<Node name="column">
+			<Value name="name">Parameters</Value>
+			<Value name="sqlName">PARAMETERS</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">16384</Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="name">ScheduledExecutionTime</Value>
+			<Value name="sqlName">SCHEDULED_EXECUTION_TIME</Value>
+			<Value name="type">timestamp</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+
+		<Node name="column">
+			<Value name="name">RecurringTaskId</Value>
+			<Value name="sqlName">RECURRING_TASK_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">RECURRING_TASK</Value>
+				<Value name="parentColumnName">RECURRING_TASK_ID</Value>
+			</Node>
+		</Node>
+
+
+		<Node name="index">
+			<Value name="indexName">TASK_STATUS_INDEX</Value>
+			<Value name="column">STATUS_ID</Value>
+			<Value name="column">SCHEDULED_EXECUTION_TIME</Value>
+		</Node>
+	</Node>
+-->
+
+
+<Node name="root">
+	<Node name="global">
+		<Value name="projectName"				>coredb</Value>
+		<Value name="rootTemplatesPath"			>/home/kaylor/dev/projects/sandboxes/ArchTemplates</Value>
+		<Value name="rootProjectTemplatePath"	>/home/kaylor/dev/projects/sandboxes/ArchTemplates/data_stores/sql/postgresql/java</Value>
+		<Value name="rootOutputPath"			>/home/kaylor/temp/code_generator/ArchDev</Value>
+		<Value name="databaseName"				>coredb</Value>
+		<Value name="packageName"				>coredb</Value>
+		<Value name="uriPath"					>coredb</Value>
+		<Value name="databaseID" description="clientSpecified | [some config ID]">coredb</Value>
+	</Node>
+
+	<!--	StartCustomCode:SchemaDefinitions	-->
+
+	<!-- The VectorTableL has to be at the top because it has to have an ID of '1' when inserted into the VECTOR_TABLE_L table. -->
+	<Node name="table">
+		<Value name="sqlName">VECTOR_TABLE_L</Value>
+
+		<Node name="column">
+			<Value name="sqlName">VECTOR_TABLE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">TABLE_NAME</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">50</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+	</Node>
+
+	<Node name="table">
+		<Value name="sqlName">VECTORS</Value>
+
+		<Node name="column">
+			<Value name="sqlName">PARENT_TABLE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">PARENT_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">CHILD_TABLE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">CHILD_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">DATA</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+	</Node>
+
+
+	<Node name="table">
+		<Value name="sqlName">COMPANY</Value>
+
+		<Node name="column">
+			<Value name="sqlName">COMPANY_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">NAME</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">255</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">WAREHOUSE_NAME</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">50</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">PARENT_COMPANY_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">COMPANY</Value>
+				<Value name="parentColumnName">COMPANY_ID</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">IS_ACTIVE</Value>
+			<Value name="type">boolean</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">LOCALE</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">10</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="typeKeyMap">
+				<Value name="typeGroupID">locale</Value>
+			</Node>
+		</Node>
+
+		<Node name="tableRelationship" description="Used where tables are linked by vectors instead of foreign keys.">
+			<Value name="childKeyColumnName">COMPANY_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="parentTableName">ROLE</Value>
+			<Value name="parentColumnName">RoleID</Value>
+		</Node>
+		<Node name="tableRelationship" description="Used where tables are linked by vectors instead of foreign keys.">
+			<Value name="childKeyColumnName">COMPANY_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="parentTableName">USER_L</Value>
+			<Value name="parentColumnName">UserID</Value>
+		</Node>
+	</Node>
+
+
+	<Node name="table">
+		<Value name="sqlName">CONTACT_METHOD</Value>
+
+		<Node name="column">
+			<Value name="sqlName">CONTACT_METHOD_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">USER_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">USER_L</Value>
+				<Value name="parentColumnName">USER_ID</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">METHOD_TYPE_ID</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">20</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="typeKeyMap">
+				<Value name="typeGroupID">contactMethodType</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">DESCRIPTION</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">250</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">OPTIONS</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">250</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+
+		<Node name="tableRelationship" description="Used where tables are linked by vectors instead of foreign keys.">
+			<Value name="childKeyColumnName">CONTACT_METHOD_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="parentTableName">EVENT_USER_NOTIFICATION</Value>
+			<Value name="parentColumnName">EventUserNotificationID</Value>
+		</Node>
+	</Node>
+
+
+	<Node name="table">
+		<Value name="sqlName">DEVICE</Value>
+
+		<Node name="column">
+			<Value name="sqlName">DEVICE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">DEVICE_TAG</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">DEVICE_NAME</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">MAC_ADDRESS</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">30</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">SITE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">SITE</Value>
+				<Value name="parentColumnName">SITE_ID</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">IS_ON_THIS_SITE</Value>
+			<Value name="type">boolean</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">CREATED_TS</Value>
+			<Value name="type">timestamp with time zone</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+	</Node>
+
+
+	<Node name="table">
+		<Value name="sqlName">DEVICE_ACTIVE_DATES</Value>
+
+		<Node name="column">
+			<Value name="sqlName">DEVICE_ACTIVE_DATES_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">DEVICE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">DEVICE</Value>
+				<Value name="parentColumnName">DEVICE_ID</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">SITE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">SITE</Value>
+				<Value name="parentColumnName">SITE_ID</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">START_DATE</Value>
+			<Value name="type">date</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">END_DATE</Value>
+			<Value name="type">date</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+	</Node>
+
+
+	<Node name="table">
+		<Value name="sqlName">DEVICE_PROPERTY</Value>
+
+		<Node name="column">
+			<Value name="sqlName">DEVICE_PROPERTY_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">DEVICE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">DEVICE</Value>
+				<Value name="parentColumnName">DEVICE_ID</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">PROPERTY_NAME</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">PROPERTY_VALUE</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+	</Node>
+
+
+	<Node name="table">
+		<Value name="sqlName">DEVICE_STATUS</Value>
+
+		<Node name="column">
+			<Value name="sqlName">DEVICE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">DEVICE</Value>
+				<Value name="parentColumnName">DEVICE_ID</Value>
+			</Node>
+		</Node>
+
+		<Node name="column">
+			<Value name="sqlName">LAST_REPORT_TIME</Value>
+			<Value name="type">timestamp with time zone</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+	</Node>
+
+
+<!--	<Node name="table">
+		<Value name="sqlName">EVENT</Value>
+
+		<Node name="column">
+			<Value name="sqlName">EVENT_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">EVENT_TYPE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">TAGS</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">200</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">EVENT_TIME</Value>
+			<Value name="type">timestamp with time zone</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">DESCRIPTION</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">1000</Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+
+		<Node name="tableRelationship" description="Used where tables are linked by vectors instead of foreign keys.">
+			<Value name="childKeyColumnName">EVENT_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="parentTableName">COMPANY</Value>
+			<Value name="parentColumnName">CompanyID</Value>
+		</Node>
+		<Node name="tableRelationship" description="Used where tables are linked by vectors instead of foreign keys.">
+			<Value name="childKeyColumnName">EVENT_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="parentTableName">SITE</Value>
+			<Value name="parentColumnName">SiteID</Value>
+		</Node>
+		<Node name="tableRelationship" description="Used where tables are linked by vectors instead of foreign keys.">
+			<Value name="childKeyColumnName">EVENT_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="parentTableName">DEVICE</Value>
+			<Value name="parentColumnName">DeviceID</Value>
+		</Node>
+		<Node name="tableRelationship" description="Used where tables are linked by vectors instead of foreign keys.">
+			<Value name="childKeyColumnName">EVENT_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="parentTableName">SERVICE</Value>
+			<Value name="parentColumnName">ServiceID</Value>
+		</Node>
+	</Node>-->
+
+
+	<Node name="table">
+		<Value name="sqlName">EVENT_USER_NOTIFICATION</Value>
+
+		<Node name="column">
+			<Value name="sqlName">EVENT_USER_NOTIFICATION_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">EVENT_TYPE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+
+		<Node name="column">
+			<Value name="sqlName">USER_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">USER_L</Value>
+				<Value name="parentColumnName">USER_ID</Value>
+			</Node>
+		</Node>
+
+		<Node name="column">
+			<Value name="sqlName">BLOCKOUT_TIME</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+	</Node>
+
+
+	<Node name="table">
+		<Value name="sqlName">PERMISSION_GROUP</Value>
+
+		<Node name="column">
+			<Value name="sqlName">PERMISSION_GROUP_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">CODE_KEY</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">50</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">NAME</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">50</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">DESCRIPTION</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">PARENT_PERMISSION_GROUP_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+			 <Node name="foreignKey">
+				<Value name="parentTableName">PERMISSION_GROUP</Value>
+				<Value name="parentColumnName">PERMISSION_GROUP_ID</Value>
+			</Node>
+		</Node>
+	</Node>
+
+	<Node name="table">
+		<Value name="sqlName">PERMISSIONS</Value>
+
+		<Node name="column">
+			<Value name="sqlName">PERMISSION_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">PERMISSION_GROUP_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">PERMISSION_GROUP</Value>
+				<Value name="parentColumnName">PERMISSION_GROUP_ID</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">CODE_KEY</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">50</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">NAME</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">50</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">DESCRIPTION</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+
+		<Node name="column">
+			<Value name="sqlName">VALUE_TYPE_KEY</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">20</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="typeKeyMap">
+				<Value name="typeGroupID">dataType</Value>
+			</Node>
+		</Node>
+
+		<Node name="tableRelationship" description="Used where tables are linked by vectors instead of foreign keys.">
+			<Value name="childKeyColumnName">PERMISSION_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="parentTableName">USER_L</Value>
+			<Value name="parentColumnName">UserID</Value>
+		</Node>
+		<Node name="tableRelationship" description="Used where tables are linked by vectors instead of foreign keys.">
+			<Value name="childKeyColumnName">PERMISSION_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="parentTableName">ROLE</Value>
+			<Value name="parentColumnName">RoleID</Value>
+		</Node>
+	</Node>
+
+	<Node name="table">
+		<Value name="sqlName">ROLE</Value>
+
+		<Node name="column">
+			<Value name="sqlName">ROLE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">PARENT_ROLE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">ROLE</Value>
+				<Value name="parentColumnName">ROLE_ID</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">COMPANY_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">COMPANY</Value>
+				<Value name="parentColumnName">COMPANY_ID</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">NAME</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">50</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">DESCRIPTION</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">ROLE_TYPE</Value>
+			<Value name="type">char</Value>
+			<Value name="valueMaxSize">1</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+	</Node>
+
+	<Node name="table">
+		<Value name="sqlName">SEQUENCES</Value>
+
+		<Node name="column">
+			<Value name="sqlName">SEQUENCE_NAME</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">LAST_SEQUENCE_VALUE</Value>
+			<Value name="type">bigint</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+	</Node>
+
+
+	<Node name="table">
+		<Value name="sqlName">SERVICE</Value>
+
+		<Node name="column">
+			<Value name="sqlName">SERVICE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">SERVICE_NAME</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">SERVICE_DIRECTORY_NAME</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+	</Node>
+
+
+	<Node name="table">
+		<Value name="sqlName">SITE</Value>
+
+		<Node name="column">
+			<Value name="sqlName">SITE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">SITE_NAME</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">CUSTOMER_SITE_ID</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">COMPANY_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">COMPANY</Value>
+				<Value name="parentColumnName">COMPANY_ID</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">SITE_STATE</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="typeKeyMap">
+				<Value name="typeGroupID">sitestate</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">TIME_ZONE_ID</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">50</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="typeKeyMap">
+				<Value name="typeGroupID">timezone</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">LAST_COMPLETED_DAY_TIME</Value>
+			<Value name="type">timestamp with time zone</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">LAST_EOD_TIME</Value>
+			<Value name="type">timestamp with time zone</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+
+		<Node name="tableRelationship" description="Used where tables are linked by vectors instead of foreign keys.">
+			<Value name="childKeyColumnName">SITE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="parentTableName">ROLE</Value>
+			<Value name="parentColumnName">RoleID</Value>
+		</Node>
+		<Node name="tableRelationship" description="Used where tables are linked by vectors instead of foreign keys.">
+			<Value name="childKeyColumnName">SITE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="parentTableName">SITE_GROUP</Value>
+			<Value name="parentColumnName">SiteGroupID</Value>
+		</Node>
+		<Node name="tableRelationship" description="Used where tables are linked by vectors instead of foreign keys.">
+			<Value name="childKeyColumnName">SITE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="parentTableName">USER_L</Value>
+			<Value name="parentColumnName">UserID</Value>
+		</Node>
+	</Node>
+
+
+
+	<Node name="table">
+		<Value name="sqlName">SITE_GROUP</Value>
+
+		<Node name="column">
+			<Value name="sqlName">SITE_GROUP_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">PARENT_SITE_GROUP_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">SITE_GROUP</Value>
+				<Value name="parentColumnName">SITE_GROUP_ID</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">GROUP_NAME</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+
+		<Node name="column">
+			<Value name="sqlName">COMPANY_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">COMPANY</Value>
+				<Value name="parentColumnName">COMPANY_ID</Value>
+			</Node>
+		</Node>
+
+		<Node name="tableRelationship" description="Used where tables are linked by vectors instead of foreign keys.">
+			<Value name="childKeyColumnName">SITE_GROUP_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="parentTableName">ROLE</Value>
+			<Value name="parentColumnName">RoleID</Value>
+		</Node>
+		<Node name="tableRelationship" description="Used where tables are linked by vectors instead of foreign keys.">
+			<Value name="childKeyColumnName">SITE_GROUP_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="parentTableName">USER_L</Value>
+			<Value name="parentColumnName">UserID</Value>
+		</Node>
+	</Node>
+
+
+
+	<Node name="table">
+		<Value name="sqlName">SITE_HOURS_GROUP</Value>
+
+		<Node name="column">
+			<Value name="sqlName">SITE_HOURS_GROUP_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">GROUP_NAME</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">GROUP_TYPE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="typeKeyMap">
+				<Value name="typeGroupID">siteHoursGroupType</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">INCLUDE_REGULAR_HOURS</Value>
+			<Value name="type">boolean</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">START_DATE</Value>
+			<Value name="type">date</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">END_DATE</Value>
+			<Value name="type">date</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">PARENT_SITE_HOURS_GROUP_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">SITE_HOURS_GROUP</Value>
+				<Value name="parentColumnName">SITE_HOURS_GROUP_ID</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">COMPANY_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">COMPANY</Value>
+				<Value name="parentColumnName">COMPANY_ID</Value>
+			</Node>
+		</Node>
+
+		<Node name="tableRelationship" description="Used where tables are linked by vectors instead of foreign keys.">
+			<Value name="childKeyColumnName">SITE_HOURS_GROUP_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="parentTableName">SITE</Value>
+			<Value name="parentColumnName">SiteID</Value>
+		</Node>
+	</Node>
+
+
+
+	<Node name="table">
+		<Value name="sqlName">SITE_HOURS</Value>
+
+		<Node name="column">
+			<Value name="sqlName">SITE_HOURS_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+
+		<Node name="column">
+			<Value name="sqlName">SITE_HOURS_GROUP_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">SITE_HOURS_GROUP</Value>
+				<Value name="parentColumnName">SITE_HOURS_GROUP_ID</Value>
+			</Node>
+		</Node>
+
+		<Node name="column">
+			<Value name="sqlName">DAY_OF_WEEK_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="typeKeyMap">
+				<Value name="typeGroupID">dayOfWeek</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">IS_CLOSED</Value>
+			<Value name="type">boolean</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">OPEN_TIME</Value>
+			<Value name="type">time</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">CLOSE_TIME</Value>
+			<Value name="type">time</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+	</Node>
+
+
+
+<!--	<Node name="table">
+		<Value name="sqlName">SITE_HOURS_HOLIDAY</Value>
+
+		<Node name="column">
+			<Value name="sqlName">SITE_HOURS_HOLIDAY_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+
+		<Node name="column">
+			<Value name="sqlName">SITE_HOURS_GROUP_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">SITE_HOURS_GROUP</Value>
+				<Value name="parentColumnName">SITE_HOURS_GROUP_ID</Value>
+			</Node>
+		</Node>
+
+		<Node name="column">
+			<Value name="sqlName">HOLIDAY_NAME</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">50</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">START_DATE</Value>
+			<Value name="type">date</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">END_DATE</Value>
+			<Value name="type">date</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">IS_CLOSED</Value>
+			<Value name="type">boolean</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">OPEN_TIME</Value>
+			<Value name="type">time</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">CLOSE_TIME</Value>
+			<Value name="type">time</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+	</Node>-->
+
+
+	<Node name="table">
+		<Value name="sqlName">RECURRING_TASK</Value>
+
+		<Node name="column">
+			<Value name="sqlName">RECURRING_TASK_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">ENABLED</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">START_DATE</Value>
+			<Value name="type">date</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">END_DATE</Value>
+			<Value name="type">date</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">EXECUTION_TIME</Value>
+			<Value name="type">time</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">INTERVAL_PARAMS</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">CREATED_TS</Value>
+			<Value name="type">timestamp</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">TASK_TYPE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">PARAMETERS</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">1024</Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+	</Node>
+
+
+	<Node name="table">
+		<Value name="sqlName">TASK</Value>
+
+		<Node name="column">
+			<Value name="sqlName">TASK_ID</Value>
+			<Value name="type">bigint</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">CREATED_TS</Value>
+			<Value name="type">timestamp</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">LAST_MODIFIED_TS</Value>
+			<Value name="type">timestamp</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+
+		<Node name="column">
+			<Value name="sqlName">TASK_TYPE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">STATUS_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+
+		<Node name="column">
+			<Value name="sqlName">PARENT_TASK_ID</Value>
+			<Value name="type">bigint</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">TASK</Value>
+				<Value name="parentColumnName">TASK_ID</Value>
+			</Node>
+		</Node>
+
+		<Node name="column">
+			<Value name="sqlName">PARAMETERS</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">16384</Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">SCHEDULED_EXECUTION_TIME</Value>
+			<Value name="type">timestamp</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+
+		<Node name="column">
+			<Value name="sqlName">RECURRING_TASK_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">RECURRING_TASK</Value>
+				<Value name="parentColumnName">RECURRING_TASK_ID</Value>
+			</Node>
+		</Node>
+
+
+		<Node name="index">
+			<Value name="indexName">TASK_STATUS_INDEX</Value>
+			<Value name="column">STATUS_ID</Value>
+			<Value name="column">SCHEDULED_EXECUTION_TIME</Value>
+		</Node>
+	</Node>
+
+
+	<Node name="table">
+		<Value name="sqlName">TYPE_L</Value>
+
+		<Node name="column">
+			<Value name="sqlName">TYPE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">COMPANY_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">COMPANY</Value>
+				<Value name="parentColumnName">COMPANY_ID</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">TYPE_GROUP_ID</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">KEY_DATA_TYPE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">TYPE_KEY</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">50</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">NAME</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">TYPE_ORDER</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">LABEL_ID</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+
+		<Node name="tableRelationship" description="Used where tables are linked by vectors instead of foreign keys.">
+			<Value name="childKeyColumnName">TYPE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="parentTableName">COMPANY</Value>
+			<Value name="parentColumnName">CompanyID</Value>
+		</Node>
+		<Node name="tableRelationship" description="Used where tables are linked by vectors instead of foreign keys.">
+			<Value name="childKeyColumnName">TYPE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="parentTableName">SITE</Value>
+			<Value name="parentColumnName">SiteID</Value>
+		</Node>
+		<Node name="tableRelationship" description="Used where tables are linked by vectors instead of foreign keys.">
+			<Value name="childKeyColumnName">TYPE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="parentTableName">ROLE</Value>
+			<Value name="parentColumnName">RoleID</Value>
+		</Node>
+		<Node name="tableRelationship" description="Used where tables are linked by vectors instead of foreign keys.">
+			<Value name="childKeyColumnName">TYPE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="parentTableName">USER_L</Value>
+			<Value name="parentColumnName">UserID</Value>
+		</Node>
+	</Node>
+
+	<Node name="table">
+		<Value name="sqlName">USER_L</Value>
+
+		<Node name="column">
+			<Value name="sqlName">USER_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">COMPANY_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">COMPANY</Value>
+				<Value name="parentColumnName">COMPANY_ID</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">NAME</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">255</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">LOGIN_ID</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">255</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">LOGIN_PASSWORD</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">255</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">SALT</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">16</Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">ROLE_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">ROLE</Value>
+				<Value name="parentColumnName">ROLE_ID</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">LANGUAGE_ID</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">20</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="typeKeyMap">
+				<Value name="typeGroupID">languageType</Value>
+			</Node>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">TIME_ZONE_ID</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">40</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="typeKeyMap">
+				<Value name="typeGroupID">timezone</Value>
+			</Node>
+		</Node>
+	</Node>
+
+
+	<Node name="table">
+		<Value name="sqlName">USER_EVENT</Value>
+
+		<Node name="column">
+			<Value name="sqlName">USER_EVENT_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">true</Value>
+			<Value name="isKeyGenerated">true</Value>
+		</Node>
+
+		<Node name="column">
+			<Value name="sqlName">USER_ID</Value>
+			<Value name="type">int</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="foreignKey">
+				<Value name="parentTableName">USER_L</Value>
+				<Value name="parentColumnName">USER_ID</Value>
+			</Node>
+		</Node>
+
+		<Node name="column">
+			<Value name="sqlName">EVENT_TYPE_ID</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">100</Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+			<Node name="typeKeyMap">
+				<Value name="typeGroupID">eventType</Value>
+			</Node>
+		</Node>
+
+		<Node name="column">
+			<Value name="sqlName">EVENT_TIME</Value>
+			<Value name="type">timestamp with time zone</Value>
+			<Value name="valueMaxSize"></Value>
+			<Value name="isNullable">false</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+		<Node name="column">
+			<Value name="sqlName">DESCRIPTION</Value>
+			<Value name="type">varchar</Value>
+			<Value name="valueMaxSize">1000</Value>
+			<Value name="isNullable">true</Value>
+			<Value name="isPrimaryKey">false</Value>
+		</Node>
+	</Node>
+	<!--	EndCustomCode:SchemaDefinitions	-->
+
+</Node>
