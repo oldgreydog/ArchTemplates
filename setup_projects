@@ -1,11 +1,6 @@
 
-
-# The command line parameters must be in the correct order.
-# Usage: ./setup_projects <code generator lib path> <root template file path>
-
-# i.e. ./setup_projects /home/kaylor/dev/projects/sandboxes/CodeGenerator/lib  /home/kaylor/dev/projects/sandboxes/ArchTemplates
-
-# NOTE: The CodeGeneratorConfig.xml is defaulted in the command line below.  If you copy this script to some other location, you will have to add the path to that file or make it a parameter, too.
+# This script does the initial setup of the project tree so that you can then do generates and builds.
+# You only need to run this script once at the beginning or whenever you change the root project_setup.xml file.
 
 
-java -cp $1/coreutil.jar:$1/code_generator.jar codegenerator.generator.CodeGenerator_Main CodeGeneratorConfig.xml $2/project/project_setup.top.template project_setup.xml
+java -cp lib/java/coreutil.jar:lib/java/code_generator.jar codegenerator.generator.CodeGenerator_Main CodeGeneratorConfig.xml ../ArchTemplates/project/project_setup.top.template project_setup.xml
