@@ -15,9 +15,12 @@
 		<!-- This first entry lets us access the db server admin (i.e. for creating, updating or dropping a specific db), where the other entry(s) point to a specific database ON the server. -->
 		<Node name="<%root.global.projectName%>_server">
 
-			<!-- The <Value> tags below are examples of the values that you have to put inside of the custom code block below.  You can probably
-				 use the shown values for everything but the user ID and password.  You need to set those to the values that you set up in your
-				 test PostgresSQL instance.
+			<!-- The <Value> tags below are examples of the values that you have to put inside of the custom code block below.  We can't just
+				 generate them because that would blow away your value changes every time you generated.  You can use them with the user ID
+				 and password that you set up in your test PostgresSQL instance.  Depending on how you've set it up, this user may be the same
+				 as or different from the admin user above.  This is just for testing, so I usually just use the same one, but if you don't
+				 control the DB server your using, the administrator of that DB will have to create a user with the right permissions (i.e. db
+				 creation, etc.) to make this work.
 
 			<Value name="label">Default DB</Value>
 			<Value name="maxConnectionCount">10</Value>
@@ -52,9 +55,12 @@
 		<!-- This second entry is the one that's used for normal access to the user database used by the code.	-->
 		<Node name="<%root.global.projectName%>">
 
-			<!-- The <Value> tags below are examples of the values that you have to put inside of the custom code block below.  You can probably
-				 them with the user ID and password that you set up in your test PostgresSQL instance.  Depending on how you've set it up, this
-				 user may be the same as of different from the admin user above.  This is just for testing, so I usually just use the same one.
+			<!-- The <Value> tags below are examples of the values that you have to put inside of the custom code block below.  We can't just
+				 generate them because that would blow away your value changes every time you generated.  You can use them with the user ID
+				 and password that you set up in your test PostgresSQL instance.  Depending on how you've set it up, this user may be the same
+				 as or different from the admin user above.  This is just for testing, so I usually just use the same one, but if you don't
+				 control the DB server your using, the administrator of that DB will have to create a user with the right permissions (i.e. db
+				 creation, etc.) to make this work.
 
 			<Value name="label">Default DB</Value>
 			<Value name="maxConnectionCount">10</Value>
@@ -62,7 +68,7 @@
 			<Value name="connectionTimeout">2000</Value>
 			<Value name="maxConnectionRetries">10</Value>
 			<Value name="driver">org.postgresql.Driver</Value>
-			<Value name="url">jdbc:postgresql://localhost:5432/postgres</Value>
+			<Value name="url">jdbc:postgresql://localhost:5432/<%root.global.projectName%></Value>
 			<Value name="userID">testuserID</Value>
 			<Value name="password">somepassword</Value>
 

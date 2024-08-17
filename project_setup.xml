@@ -9,15 +9,28 @@
 	substitutions in the config values here before they are passed to the code generator itself.  That makes it easier to create
 	things like the file path(s) below that can be much more generic and easier to maintain that hard coding every place in the
 	values that requires the full path(s).
+
+	!!NOTE!! You can change any of these "global" paths to suit your build environment.  These are just for a simple use case in
+	the example set.
+
+	!!NOTE2!! If you change anything in this file, you must rerun the setup_projects script before trying to run generate_all.
+
 -->
 <Node name="root">
 	<Node name="global">
-		<Value name="codeGeneratorLibPath"		>/home/kaylor/dev/projects/sandboxes/CodeGenerator/lib</Value>
-		<Value name="rootTemplatesPath"			>/home/kaylor/dev/projects/sandboxes/ArchTemplates</Value>
-		<Value name="rootOutputPath"			>/home/kaylor/temp/code_generator/ArchDev</Value>
+		<Value name="sharedProjectPath"			>You must put the path here of the parent directory that holds the paths below</Value>
+		<Value name="codeGeneratorLibPath"		>%%global.sharedProjectPath%%/ArchTemp_Example/lib/java</Value>
+		<Value name="rootTemplatesPath"			>%%global.sharedProjectPath%%/ArchTemplates</Value>
+		<Value name="rootOutputPath"			>%%global.sharedProjectPath%%/ArchTemp_Example</Value>
 	</Node>
 
 	<Node name="projects">
+
+<!-- Sample project section:
+
+	This is a sample of what the project section would look like.  You would create one or more of these in this "projects" block to
+	the setup and generation of the project(s) with the technologies and languages you wanted.  To see this in action, please refer to
+	the ArchTemp_Example zip file attached to the release of this project.
 
 		<Node name="project">
 			<Value name="projectName">coredb</Value>
@@ -31,6 +44,8 @@
 			</Node>
 
 		</Node>
+
+-->
 
 	</Node>
 
