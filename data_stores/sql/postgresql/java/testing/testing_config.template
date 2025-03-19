@@ -36,19 +36,6 @@
 
 			<%customCode key="<%root.global.projectName%>dbAdminUser" openingCommentCharacters="<!--" optionalClosingCommentCharacters="-->" %>
 
-
-			<Node name="dbSetupDDLFiles">
-				<!-- The two <Value> tags below are examples of the values that you can put inside of the custom code block below.  You can
-					 include as many as you need, but you will have to adjust the paths (particularly if you use relative paths) to be correct
-					 for where you are running your executable in the directory tree.
-
-				<Value name="file" >../ddl/coredb.ddl</Value>
-				<Value name="file" >../ddl/coredb_default_data.sql</Value>
-
-				 -->
-
-				<%customCode key="<%root.global.projectName%>dbSetupDDLFiles" openingCommentCharacters="<!--" optionalClosingCommentCharacters="-->" %>
-			</Node>
 		</Node>
 
 
@@ -75,6 +62,20 @@
 			-->
 
 			<%customCode key="<%root.global.projectName%>dbRegularUser" openingCommentCharacters="<!--" optionalClosingCommentCharacters="-->" %>
+
+
+			<Node name="dbSetupDDLFiles">
+				<!-- The two <Value> tags below are examples of the values that you can put inside of the custom code block below.  You can
+					 include as many as you need, but you will have to adjust the paths (particularly if you use relative paths) to be correct
+					 for where you are running your executable in the directory tree.
+
+				<Value name="file" >../ddl/coredb.ddl</Value>
+				<Value name="file" >../ddl/coredb_default_data.sql</Value>
+
+				 -->
+
+				<%customCode key="<%root.global.projectName%>dbSetupDDLFiles" openingCommentCharacters="<!--" optionalClosingCommentCharacters="-->" %>
+			</Node>
 
 		</Node>
 
